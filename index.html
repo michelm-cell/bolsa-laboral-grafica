@@ -246,6 +246,30 @@ tr:hover td { background:var(--cream); }
 .toast.success { border-left:4px solid var(--green); }
 .toast.error { border-left:4px solid var(--red); }
 
+/* LOGIN ADMIN */
+.login-overlay { display:none; position:fixed; inset:0; background:rgba(15,22,44,0.82); z-index:400; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(2px); }
+.login-overlay.open { display:flex; }
+.login-box { background:white; border-radius:var(--radius-lg); padding:44px 40px 36px; max-width:400px; width:100%; box-shadow:var(--shadow-lg); position:relative; }
+.login-logo { display:flex; align-items:center; gap:12px; margin-bottom:28px; justify-content:center; }
+.login-logo-icon { width:44px; height:44px; background:var(--navy); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; }
+.login-logo-text { font-family:'Playfair Display',serif; font-size:16px; color:var(--navy); font-weight:700; line-height:1.3; }
+.login-box h3 { font-family:'Playfair Display',serif; font-size:22px; color:var(--navy); margin-bottom:6px; text-align:center; }
+.login-box p { font-size:13px; color:var(--gray-600); text-align:center; margin-bottom:28px; }
+.login-field { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+.login-field label { font-size:12.5px; font-weight:600; color:var(--gray-800); text-transform:uppercase; letter-spacing:0.05em; }
+.login-field input { border:1.5px solid var(--gray-200); border-radius:8px; padding:11px 14px; font-family:'DM Sans',sans-serif; font-size:15px; color:var(--text); outline:none; transition:border-color .15s, box-shadow .15s; }
+.login-field input:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(200,153,42,0.12); }
+.login-error { background:#fdecea; border:1px solid #f5c6c2; border-radius:8px; padding:10px 14px; font-size:13px; color:var(--red); margin-bottom:16px; display:none; text-align:center; }
+.login-error.show { display:block; }
+.login-btn { width:100%; background:var(--navy); color:white; border:none; border-radius:8px; padding:13px; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:600; cursor:pointer; transition:background .15s; margin-top:4px; }
+.login-btn:hover { background:var(--navy-light); }
+.login-btn:disabled { opacity:0.6; cursor:not-allowed; }
+.login-footer { font-size:12px; color:var(--gray-400); text-align:center; margin-top:20px; line-height:1.5; }
+.admin-session-bar { background:rgba(200,153,42,0.12); border-bottom:1px solid rgba(200,153,42,0.25); padding:8px 32px; display:flex; align-items:center; justify-content:space-between; font-size:13px; }
+.admin-session-bar span { color:var(--gold); font-weight:600; }
+.admin-session-bar button { background:none; border:1px solid rgba(200,153,42,0.4); border-radius:6px; color:var(--gold); font-size:12px; padding:4px 12px; cursor:pointer; font-family:'DM Sans',sans-serif; }
+.admin-session-bar button:hover { background:rgba(200,153,42,0.1); }
+
 footer { background:var(--navy); color:rgba(255,255,255,0.6); text-align:center; padding:24px; font-size:13px; margin-top:48px; }
 footer strong { color:var(--gold); }
 
@@ -517,6 +541,31 @@ footer strong { color:var(--gold); }
 
 </main>
 
+<!-- Modal Login Admin -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">🖨</div>
+      <div class="login-logo-text">Bolsa Laboral<br>Sector Gráfico</div>
+    </div>
+    <h3>Acceso administrativo</h3>
+    <p>Ingresá tus credenciales para acceder al panel de moderación</p>
+    <div class="login-error" id="login-error">Usuario o contraseña incorrectos</div>
+    <form onsubmit="doLogin(event)">
+      <div class="login-field">
+        <label>Usuario</label>
+        <input type="text" id="login-user" autocomplete="username" placeholder="admin" required>
+      </div>
+      <div class="login-field">
+        <label>Contraseña</label>
+        <input type="password" id="login-pass" autocomplete="current-password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="login-btn" id="login-btn">Ingresar al panel →</button>
+    </form>
+    <div class="login-footer">Acceso restringido — Asociación de Gráficos del Paraguay<br>Solo personal autorizado</div>
+  </div>
+</div>
+
 <!-- Modales -->
 <div class="modal-overlay" id="modal-vacante"><div class="modal"><button class="modal-close" onclick="closeModal('modal-vacante')">✕</button><div id="modal-vacante-content"></div></div></div>
 <div class="modal-overlay" id="modal-perfil"><div class="modal"><button class="modal-close" onclick="closeModal('modal-perfil')">✕</button><div id="modal-perfil-content"></div></div></div>
@@ -536,6 +585,15 @@ footer strong { color:var(--gold); }
 // ═══════════════════════════════════════════════════════════════
 const SUPABASE_URL = 'https://gbmdovcqrkdbrrpbiwvk.supabase.co'; 
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdibWRvdmNxcmtkYnJycGJpd3ZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NDE4MDgsImV4cCI6MjA5MTMxNzgwOH0.ngxDjVD_lcADE-Ag8CX_d9mkj5K2RM0LXfsKfZFWSUc';
+// ═══════════════════════════════════════════════════════════════
+// CREDENCIALES DEL PANEL ADMIN
+// Cambiá estos valores antes de subir a producción.
+// ═══════════════════════════════════════════════════════════════
+const ADMIN_USER = 'admin';
+const ADMIN_PASS = 'Grafica2025!';
+
+// Sesión en memoria (se limpia al cerrar el navegador)
+let adminLoggedIn = false;
 
 // ─── Helper para llamadas a la API de Supabase ──────────────────
 async function sbFetch(endpoint, options = {}) {
@@ -616,6 +674,7 @@ const CIUDADES = ['Asunción','San Lorenzo','Luque','Fernando de la Mora','Lamba
 let currentAdminTab = 'dashboard';
 
 function showPage(p) {
+  if (p === 'admin' && !adminLoggedIn) { openLoginModal(); return; }
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('nav button[id^=nav-]').forEach(b => b.classList.remove('active'));
   const page = document.getElementById('page-' + p);
@@ -627,6 +686,65 @@ function showPage(p) {
   if (p === 'vacantes') loadAndRenderVacantes();
   if (p === 'perfiles') loadAndRenderPerfiles();
   if (p === 'admin') loadAdmin();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AUTENTICACIÓN ADMIN
+// ═══════════════════════════════════════════════════════════════
+function openLoginModal() {
+  document.getElementById('login-overlay').classList.add('open');
+  document.getElementById('login-error').classList.remove('show');
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  setTimeout(() => document.getElementById('login-user').focus(), 100);
+}
+
+function doLogin(e) {
+  e.preventDefault();
+  const user = document.getElementById('login-user').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  const btn  = document.getElementById('login-btn');
+  const err  = document.getElementById('login-error');
+  btn.disabled = true;
+  btn.textContent = 'Verificando...';
+  setTimeout(() => {
+    if (user === ADMIN_USER && pass === ADMIN_PASS) {
+      adminLoggedIn = true;
+      document.getElementById('login-overlay').classList.remove('open');
+      btn.disabled = false;
+      btn.textContent = 'Ingresar al panel >';
+      err.classList.remove('show');
+      showAdminSessionBar();
+      document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+      document.getElementById('page-admin').classList.add('active');
+      window.scrollTo(0, 0);
+      loadAdmin();
+      showToast('Sesion iniciada correctamente', 'success');
+    } else {
+      err.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'Ingresar al panel >';
+      document.getElementById('login-pass').value = '';
+      document.getElementById('login-pass').focus();
+    }
+  }, 600);
+}
+
+function showAdminSessionBar() {
+  if (document.getElementById('admin-session-bar')) return;
+  const bar = document.createElement('div');
+  bar.id = 'admin-session-bar';
+  bar.className = 'admin-session-bar';
+  bar.innerHTML = '<span>Sesion admin activa — ' + ADMIN_USER + '</span><button onclick="adminLogout()">Cerrar sesion</button>';
+  document.querySelector('header').insertAdjacentElement('afterend', bar);
+}
+
+function adminLogout() {
+  adminLoggedIn = false;
+  const bar = document.getElementById('admin-session-bar');
+  if (bar) bar.remove();
+  showPage('landing');
+  showToast('Sesion cerrada', '');
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1148,3 +1266,4 @@ renderLanding();
 </script>
 </body>
 </html>
+
