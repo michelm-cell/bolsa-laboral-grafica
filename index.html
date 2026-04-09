@@ -583,8 +583,9 @@ footer strong { color:var(--gold); }
 // Reemplazá estos valores con los de tu proyecto en supabase.com
 // Panel → Settings → API
 // ═══════════════════════════════════════════════════════════════
-const SUPABASE_URL = 'https://gbmdovcqrkdbrrpbiwvk.supabase.co'; 
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdibWRvdmNxcmtkYnJycGJpd3ZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NDE4MDgsImV4cCI6MjA5MTMxNzgwOH0.ngxDjVD_lcADE-Ag8CX_d9mkj5K2RM0LXfsKfZFWSUc';
+const SUPABASE_URL = 'https://TU_PROJECT_ID.supabase.co';
+const SUPABASE_ANON_KEY = 'TU_ANON_KEY_PUBLICA';
+
 // ═══════════════════════════════════════════════════════════════
 // CREDENCIALES DEL PANEL ADMIN
 // Cambiá estos valores antes de subir a producción.
@@ -612,7 +613,12 @@ async function sbFetch(endpoint, options = {}) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.message || `Error ${res.status}`);
   }
-  return options.method === 'DELETE' ? null : res.json();
+  // 204 No Content (PATCH/DELETE con return=minimal) — no intentar parsear JSON
+  if (res.status === 204 || options.method === 'DELETE' || options.prefer === 'return=minimal') {
+    return null;
+  }
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
 }
 
 // ─── CRUD Vacantes ───────────────────────────────────────────────
@@ -642,6 +648,9 @@ const db = {
     return sbFetch(`perfiles?id=eq.${id}`, {
       method: 'PATCH', body: JSON.stringify(data), prefer: 'return=minimal'
     });
+  },
+  async testConnection() {
+    return sbFetch('vacantes?limit=1&select=id');
   }
 };
 
@@ -1044,13 +1053,18 @@ async function submitVacante(e) {
     fecha_vencimiento: new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0]
   };
   try {
+    const requeridos = ['empresa','email','telefono','ciudad','puesto','categoria'];
+    const faltantes = requeridos.filter(k => !data[k] || data[k].trim() === '');
+    if (faltantes.length) throw new Error('Faltan campos obligatorios: ' + faltantes.join(', '));
     await db.insertVacante(data);
     document.getElementById('success-vacante').style.display = 'block';
     document.getElementById('fv-actions').style.display = 'none';
     showToast('✅ Vacante enviada — pendiente de aprobación', 'success');
   } catch(err) {
     btn.disabled = false; btn.textContent = 'Enviar vacante →';
-    showToast('❌ Error al enviar: ' + err.message, 'error');
+    const msg = err.message || 'Error desconocido';
+    showToast('❌ Error al enviar: ' + msg, 'error');
+    console.error('submitVacante error:', err);
   }
 }
 
@@ -1074,13 +1088,19 @@ async function submitPerfil(e) {
     fecha_vencimiento: new Date(Date.now() + 90*24*60*60*1000).toISOString().split('T')[0]
   };
   try {
+    // Validar campos requeridos antes de enviar
+    const requeridos = ['nombre','email','telefono','ciudad','categoria','cargo_objetivo'];
+    const faltantes = requeridos.filter(k => !data[k] || data[k].trim() === '');
+    if (faltantes.length) throw new Error('Faltan campos obligatorios: ' + faltantes.join(', '));
     await db.insertPerfil(data);
     document.getElementById('success-perfil').style.display = 'block';
     document.getElementById('fp-actions').style.display = 'none';
     showToast('✅ Perfil enviado — pendiente de aprobación', 'success');
   } catch(err) {
     btn.disabled = false; btn.textContent = 'Enviar perfil →';
-    showToast('❌ Error al enviar: ' + err.message, 'error');
+    const msg = err.message || 'Error desconocido';
+    showToast('❌ Error al enviar: ' + msg, 'error');
+    console.error('submitPerfil error:', err);
   }
 }
 
@@ -1088,6 +1108,29 @@ async function submitPerfil(e) {
 // PANEL ADMIN
 // ═══════════════════════════════════════════════════════════════
 async function loadAdmin() {
+  // Verificar conexión con Supabase al entrar al admin
+  try {
+    await db.testConnection();
+  } catch(e) {
+    const c = document.getElementById('admin-content');
+    if (c) c.innerHTML = `
+      <div style="background:#fdecea;border:1px solid #f5c6c2;border-radius:12px;padding:32px;max-width:560px;margin:32px auto;text-align:center">
+        <div style="font-size:36px;margin-bottom:12px">⚠️</div>
+        <h3 style="color:#c0392b;font-family:'Playfair Display',serif;margin-bottom:10px">Sin conexión a Supabase</h3>
+        <p style="font-size:14px;color:#6b6455;line-height:1.6;margin-bottom:16px">
+          Las credenciales de Supabase no están configuradas o son incorrectas.<br>
+          Abrí el archivo <strong>index.html</strong> y reemplazá las líneas:<br>
+        </p>
+        <div style="background:#1a2744;border-radius:8px;padding:14px;text-align:left;font-family:monospace;font-size:13px;color:#e8b84b">
+          const SUPABASE_URL = 'https://TU_PROJECT_ID.supabase.co';<br>
+          const SUPABASE_ANON_KEY = 'TU_ANON_KEY_PUBLICA';
+        </div>
+        <p style="font-size:12px;color:#a09880;margin-top:14px">
+          Error técnico: ${e.message}
+        </p>
+      </div>`;
+    return;
+  }
   updateAdminCounts();
   adminTab(currentAdminTab);
 }
@@ -1208,19 +1251,25 @@ function perTable(items) {
 async function cambiarEstadoVac(id, estado) {
   try {
     await db.updateVacante(id, { estado });
-    showToast(`Vacante → ${estado}`, 'success');
-    adminTab(currentAdminTab);
+    showToast('Vacante actualizada: ' + estado, 'success');
+    await adminTab(currentAdminTab);
     updateAdminCounts();
-  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+  } catch(e) {
+    console.error('cambiarEstadoVac:', e);
+    showToast('Error al actualizar: ' + (e.message || e), 'error');
+  }
 }
 
 async function cambiarEstadoPer(id, estado) {
   try {
     await db.updatePerfil(id, { estado });
-    showToast(`Perfil → ${estado}`, 'success');
-    adminTab(currentAdminTab);
+    showToast('Perfil actualizado: ' + estado, 'success');
+    await adminTab(currentAdminTab);
     updateAdminCounts();
-  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+  } catch(e) {
+    console.error('cambiarEstadoPer:', e);
+    showToast('Error al actualizar: ' + (e.message || e), 'error');
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
