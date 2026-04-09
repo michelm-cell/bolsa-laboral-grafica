@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bolsa Laboral | Sector Gráfico Paraguay</title>
+<meta name="description" content="Portal oficial de empleo del sector gráfico paraguayo. Vacantes laborales y perfiles profesionales en diseño, impresión, preprensa y terminación.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── CONFIGURACIÓN SUPABASE ──────────────────────────────────────
+   REEMPLAZÁ estos valores con los de tu proyecto en supabase.com
+   Settings → API → Project URL y anon/public key
+────────────────────────────────────────────────────────────────── */
+
+:root {
+  --navy: #1a2744;
+  --navy-light: #243358;
+  --gold: #c8992a;
+  --gold-light: #e8b84b;
+  --gold-pale: #fdf5e4;
+  --cream: #faf8f4;
+  --white: #ffffff;
+  --gray-100: #f4f2ee;
+  --gray-200: #e8e4dc;
+  --gray-400: #a09880;
+  --gray-600: #6b6455;
+  --gray-800: #3d3830;
+  --text: #1e1b16;
+  --red: #c0392b;
+  --green: #1e7e50;
+  --green-light: #e8f5ee;
+  --orange: #d4650a;
+  --orange-light: #fef3e8;
+  --blue-light: #e8f0fc;
+  --blue: #2563a8;
+  --shadow-sm: 0 1px 4px rgba(26,39,68,0.08);
+  --shadow-md: 0 4px 16px rgba(26,39,68,0.12);
+  --shadow-lg: 0 8px 32px rgba(26,39,68,0.16);
+  --radius: 10px;
+  --radius-lg: 16px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:var(--cream); color:var(--text); min-height:100vh; }
+
+/* TOPBAR */
+.topbar { background:var(--navy); color:rgba(255,255,255,0.7); font-size:12px; padding:6px 0; text-align:center; letter-spacing:0.03em; }
+
+/* HEADER */
+header { background:var(--navy); padding:0 32px; position:sticky; top:0; z-index:100; box-shadow:var(--shadow-md); }
+.header-inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; height:64px; }
+.logo { display:flex; align-items:center; gap:12px; cursor:pointer; }
+.logo-icon { width:38px; height:38px; background:var(--gold); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+.logo-text { color:white; }
+.logo-text strong { display:block; font-family:'Playfair Display',serif; font-size:15px; line-height:1.2; }
+.logo-text span { font-size:11px; color:rgba(255,255,255,0.55); letter-spacing:0.05em; }
+nav { display:flex; gap:4px; align-items:center; }
+nav button { background:none; border:none; color:rgba(255,255,255,0.75); font-family:'DM Sans',sans-serif; font-size:13.5px; font-weight:500; padding:8px 14px; border-radius:7px; cursor:pointer; transition:all .15s; }
+nav button:hover { background:rgba(255,255,255,0.1); color:white; }
+nav button.active { background:var(--gold); color:var(--navy); }
+.btn-nav-cta { background:var(--gold) !important; color:var(--navy) !important; font-weight:600 !important; margin-left:8px; }
+.btn-nav-cta:hover { background:var(--gold-light) !important; }
+
+/* MAIN */
+main { max-width:1200px; margin:0 auto; padding:0 32px 64px; }
+.page { display:none; }
+.page.active { display:block; }
+
+/* HERO */
+.hero { background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 60%,#1e3a6e 100%); margin:0 -32px; padding:72px 32px 64px; text-align:center; position:relative; overflow:hidden; }
+.hero::before { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23c8992a' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E"); }
+.hero-content { position:relative; z-index:1; max-width:680px; margin:0 auto; }
+.hero-badge { display:inline-block; background:rgba(200,153,42,0.2); border:1px solid rgba(200,153,42,0.4); color:var(--gold-light); font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; padding:5px 16px; border-radius:20px; margin-bottom:20px; }
+.hero h1 { font-family:'Playfair Display',serif; font-size:clamp(28px,4vw,44px); color:white; line-height:1.2; margin-bottom:16px; }
+.hero h1 span { color:var(--gold-light); }
+.hero p { color:rgba(255,255,255,0.72); font-size:16px; line-height:1.7; margin-bottom:36px; }
+.hero-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+
+/* BOTONES */
+.btn { display:inline-flex; align-items:center; gap:8px; padding:11px 22px; border-radius:var(--radius); font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600; cursor:pointer; border:none; transition:all .15s; text-decoration:none; }
+.btn-primary { background:var(--gold); color:var(--navy); }
+.btn-primary:hover { background:var(--gold-light); transform:translateY(-1px); }
+.btn-secondary { background:rgba(255,255,255,0.12); color:white; border:1px solid rgba(255,255,255,0.25); }
+.btn-secondary:hover { background:rgba(255,255,255,0.2); }
+.btn-outline { background:white; color:var(--navy); border:1.5px solid var(--gray-200); }
+.btn-outline:hover { border-color:var(--gold); color:var(--gold); }
+.btn-danger { background:#fdecea; color:var(--red); border:1px solid #f5c6c2; }
+.btn-success { background:var(--green-light); color:var(--green); border:1px solid #b8deca; }
+.btn-sm { padding:6px 14px; font-size:13px; }
+
+/* STATS */
+.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; margin:48px 0 40px; }
+.stat-card { background:white; border-radius:var(--radius-lg); padding:24px; text-align:center; box-shadow:var(--shadow-sm); border:1px solid var(--gray-200); transition:transform .15s,box-shadow .15s; }
+.stat-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); }
+.stat-num { font-family:'Playfair Display',serif; font-size:40px; color:var(--navy); line-height:1; margin-bottom:6px; }
+.stat-label { font-size:13px; color:var(--gray-600); font-weight:500; }
+.stat-icon { font-size:22px; margin-bottom:10px; }
+
+/* CATEGORÍAS */
+.section-title { font-family:'Playfair Display',serif; font-size:26px; color:var(--navy); margin-bottom:6px; }
+.section-sub { color:var(--gray-600); font-size:14px; margin-bottom:28px; }
+.cats-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:12px; margin-bottom:48px; }
+.cat-chip { background:white; border:1.5px solid var(--gray-200); border-radius:var(--radius); padding:14px 16px; cursor:pointer; transition:all .15s; text-align:center; }
+.cat-chip:hover,.cat-chip.active { border-color:var(--gold); background:var(--gold-pale); }
+.cat-chip .cat-icon { font-size:22px; margin-bottom:6px; display:block; }
+.cat-chip span { font-size:12.5px; font-weight:500; color:var(--gray-800); }
+
+/* CTA */
+.cta-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:48px; }
+.cta-card { border-radius:var(--radius-lg); padding:32px; position:relative; overflow:hidden; }
+.cta-card.empresas { background:var(--navy); color:white; }
+.cta-card.profesionales { background:var(--gold-pale); border:1.5px solid var(--gold); }
+.cta-card h3 { font-family:'Playfair Display',serif; font-size:20px; margin-bottom:10px; }
+.cta-card.empresas h3 { color:white; }
+.cta-card.profesionales h3 { color:var(--navy); }
+.cta-card p { font-size:14px; line-height:1.6; margin-bottom:20px; }
+.cta-card.empresas p { color:rgba(255,255,255,0.72); }
+.cta-card.profesionales p { color:var(--gray-600); }
+
+/* FILTROS */
+.filters-bar { background:white; border:1px solid var(--gray-200); border-radius:var(--radius-lg); padding:20px 24px; margin-bottom:28px; display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end; box-shadow:var(--shadow-sm); }
+.filter-group { display:flex; flex-direction:column; gap:5px; flex:1; min-width:150px; }
+.filter-group label { font-size:11.5px; font-weight:600; color:var(--gray-600); text-transform:uppercase; letter-spacing:0.05em; }
+.filter-group select,.filter-group input { border:1.5px solid var(--gray-200); border-radius:8px; padding:8px 12px; font-family:'DM Sans',sans-serif; font-size:13.5px; color:var(--text); background:var(--cream); outline:none; transition:border-color .15s; }
+.filter-group select:focus,.filter-group input:focus { border-color:var(--gold); }
+
+/* CARDS */
+.items-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:20px; }
+.card { background:white; border:1px solid var(--gray-200); border-radius:var(--radius-lg); padding:24px; box-shadow:var(--shadow-sm); transition:all .15s; cursor:pointer; }
+.card:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); border-color:var(--gold); }
+.card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+.card-title { font-size:16px; font-weight:600; color:var(--navy); line-height:1.3; }
+.card-company { font-size:13px; color:var(--gray-600); margin-top:3px; }
+.badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:600; white-space:nowrap; }
+.badge-gold { background:#fef8e8; color:#9a6f1a; border:1px solid #f0d98a; }
+.badge-green { background:var(--green-light); color:var(--green); border:1px solid #b8deca; }
+.badge-orange { background:var(--orange-light); color:var(--orange); border:1px solid #f5c990; }
+.badge-gray { background:var(--gray-100); color:var(--gray-600); border:1px solid var(--gray-200); }
+.badge-red { background:#fdecea; color:var(--red); border:1px solid #f5c6c2; }
+.badge-blue { background:var(--blue-light); color:var(--blue); border:1px solid #b8cff5; }
+.badge-navy { background:#e8ecf5; color:var(--navy); border:1px solid #c0cbe0; }
+.card-meta { display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; }
+.meta-item { display:flex; align-items:center; gap:4px; font-size:13px; color:var(--gray-600); }
+.card-desc { font-size:13px; color:var(--gray-600); line-height:1.6; margin-top:10px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.card-footer { display:flex; justify-content:space-between; align-items:center; margin-top:16px; padding-top:14px; border-top:1px solid var(--gray-100); }
+.card-date { font-size:12px; color:var(--gray-400); }
+
+/* EMPTY / LOADING */
+.empty-state { text-align:center; padding:64px 32px; color:var(--gray-400); }
+.empty-state .empty-icon { font-size:48px; margin-bottom:16px; }
+.loading-state { text-align:center; padding:48px; color:var(--gray-600); }
+.spinner { display:inline-block; width:32px; height:32px; border:3px solid var(--gray-200); border-top-color:var(--gold); border-radius:50%; animation:spin .7s linear infinite; margin-bottom:12px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.results-count { font-size:13px; color:var(--gray-600); margin-bottom:16px; font-weight:500; }
+.results-count strong { color:var(--navy); }
+
+/* PAGE HEADER */
+.page-header { padding:40px 0 32px; border-bottom:1px solid var(--gray-200); margin-bottom:32px; }
+.page-header h2 { font-family:'Playfair Display',serif; font-size:30px; color:var(--navy); margin-bottom:6px; }
+.page-header p { color:var(--gray-600); font-size:15px; }
+
+/* FORMULARIOS */
+.form-card { background:white; border:1px solid var(--gray-200); border-radius:var(--radius-lg); padding:40px; box-shadow:var(--shadow-sm); max-width:760px; }
+.form-section { margin-bottom:32px; padding-bottom:28px; border-bottom:1px solid var(--gray-100); }
+.form-section:last-child { border-bottom:none; margin-bottom:0; }
+.form-section-title { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--gold); margin-bottom:20px; }
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.form-grid.cols-1 { grid-template-columns:1fr; }
+.field { display:flex; flex-direction:column; gap:6px; }
+.field.full { grid-column:1/-1; }
+label.field-label { font-size:13px; font-weight:600; color:var(--gray-800); }
+label.field-label .req { color:var(--gold); margin-left:2px; }
+input[type=text],input[type=email],input[type=tel],select,textarea { border:1.5px solid var(--gray-200); border-radius:8px; padding:10px 14px; font-family:'DM Sans',sans-serif; font-size:14px; color:var(--text); background:white; outline:none; transition:border-color .15s,box-shadow .15s; width:100%; }
+input:focus,select:focus,textarea:focus { border-color:var(--gold); box-shadow:0 0 0 3px rgba(200,153,42,0.12); }
+textarea { resize:vertical; min-height:100px; line-height:1.6; }
+.checkbox-group { display:flex; align-items:flex-start; gap:10px; padding:14px; background:var(--cream); border:1.5px solid var(--gray-200); border-radius:8px; margin-bottom:10px; }
+.checkbox-group input[type=checkbox] { width:16px; height:16px; margin-top:2px; accent-color:var(--gold); flex-shrink:0; }
+.checkbox-group label { font-size:13px; line-height:1.5; color:var(--gray-800); cursor:pointer; }
+.form-notice { background:var(--blue-light); border:1px solid #b8cff5; border-radius:8px; padding:14px 16px; font-size:13px; color:#1a4a88; margin-bottom:24px; line-height:1.5; }
+.form-success { background:var(--green-light); border:1px solid #b8deca; border-radius:var(--radius); padding:24px; text-align:center; display:none; }
+.form-success .success-icon { font-size:36px; margin-bottom:10px; }
+.form-success h4 { font-size:18px; color:var(--green); margin-bottom:8px; font-family:'Playfair Display',serif; }
+.form-success p { font-size:14px; color:var(--gray-600); }
+
+/* MODAL */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(26,39,68,0.6); z-index:200; align-items:center; justify-content:center; padding:20px; }
+.modal-overlay.open { display:flex; }
+.modal { background:white; border-radius:var(--radius-lg); padding:36px; max-width:640px; width:100%; max-height:85vh; overflow-y:auto; position:relative; box-shadow:var(--shadow-lg); }
+.modal-close { position:absolute; top:16px; right:16px; background:var(--gray-100); border:none; border-radius:50%; width:32px; height:32px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; color:var(--gray-600); }
+.modal-close:hover { background:var(--gray-200); }
+.modal h3 { font-family:'Playfair Display',serif; font-size:22px; color:var(--navy); margin-bottom:6px; }
+.modal-company { font-size:14px; color:var(--gray-600); margin-bottom:20px; }
+.modal-section { margin-bottom:20px; }
+.modal-section-title { font-size:11px; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; color:var(--gold); margin-bottom:8px; }
+.modal-text { font-size:14px; color:var(--gray-800); line-height:1.7; }
+.contact-block { background:var(--navy); border-radius:var(--radius); padding:18px 20px; margin-top:16px; display:flex; gap:24px; flex-wrap:wrap; }
+.contact-item { color:white; font-size:14px; }
+.contact-item span { display:block; font-size:11px; color:rgba(255,255,255,0.5); margin-bottom:3px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; }
+
+/* ADMIN */
+.admin-layout { display:grid; grid-template-columns:220px 1fr; gap:0; min-height:calc(100vh - 64px); margin:0 -32px; }
+.admin-sidebar { background:var(--navy); padding:28px 16px; }
+.admin-sidebar h4 { font-size:10px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.35); padding:0 12px; margin:20px 0 8px; }
+.admin-sidebar h4:first-child { margin-top:0; }
+.sidebar-btn { display:flex; align-items:center; gap:10px; width:100%; background:none; border:none; color:rgba(255,255,255,0.7); font-family:'DM Sans',sans-serif; font-size:13.5px; font-weight:500; padding:10px 12px; border-radius:8px; cursor:pointer; transition:all .15s; text-align:left; }
+.sidebar-btn:hover { background:rgba(255,255,255,0.08); color:white; }
+.sidebar-btn.active { background:var(--gold); color:var(--navy); font-weight:600; }
+.sidebar-btn .count { margin-left:auto; background:rgba(255,255,255,0.15); color:white; font-size:11px; padding:2px 7px; border-radius:10px; }
+.sidebar-btn.active .count { background:rgba(26,39,68,0.2); color:var(--navy); }
+.admin-content { padding:32px; background:var(--cream); }
+.admin-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
+.admin-header h2 { font-family:'Playfair Display',serif; font-size:24px; color:var(--navy); }
+.admin-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+.admin-stat { background:white; border:1px solid var(--gray-200); border-radius:var(--radius); padding:18px 20px; box-shadow:var(--shadow-sm); }
+.admin-stat .num { font-size:28px; font-weight:700; color:var(--navy); font-family:'Playfair Display',serif; }
+.admin-stat .lbl { font-size:12px; color:var(--gray-600); margin-top:2px; }
+.admin-stat.pend .num { color:var(--orange); }
+.table-card { background:white; border:1px solid var(--gray-200); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); overflow:hidden; }
+.table-toolbar { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--gray-100); }
+.table-toolbar h3 { font-size:15px; font-weight:600; color:var(--navy); }
+table { width:100%; border-collapse:collapse; }
+th { text-align:left; padding:10px 16px; font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--gray-400); background:var(--gray-100); border-bottom:1px solid var(--gray-200); }
+td { padding:12px 16px; font-size:13.5px; color:var(--gray-800); border-bottom:1px solid var(--gray-100); vertical-align:middle; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:var(--cream); }
+.td-title { font-weight:600; color:var(--navy); }
+.td-sub { font-size:12px; color:var(--gray-400); margin-top:2px; }
+.action-btns { display:flex; gap:6px; }
+
+/* CONEXIÓN SUPABASE */
+.db-banner { background:#1e1b35; border-radius:var(--radius); padding:14px 20px; margin-bottom:24px; display:flex; align-items:center; gap:12px; }
+.db-banner .dot { width:8px; height:8px; border-radius:50%; background:#22c55e; flex-shrink:0; animation:pulse 2s infinite; }
+.db-banner .dot.offline { background:#ef4444; animation:none; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.db-banner span { color:rgba(255,255,255,0.8); font-size:13px; }
+.db-banner strong { color:white; }
+
+/* TÉRMINOS */
+.terms-content { background:white; border:1px solid var(--gray-200); border-radius:var(--radius-lg); padding:48px; box-shadow:var(--shadow-sm); max-width:760px; line-height:1.8; }
+.terms-content h3 { font-family:'Playfair Display',serif; font-size:18px; color:var(--navy); margin:28px 0 10px; }
+.terms-content h3:first-child { margin-top:0; }
+.terms-content p { font-size:14px; color:#4a4540; margin-bottom:12px; }
+
+/* TOAST */
+.toast { position:fixed; bottom:24px; right:24px; background:var(--navy); color:white; padding:14px 20px; border-radius:var(--radius); font-size:14px; box-shadow:var(--shadow-lg); z-index:300; transform:translateY(80px); opacity:0; transition:all .3s; max-width:340px; }
+.toast.show { transform:translateY(0); opacity:1; }
+.toast.success { border-left:4px solid var(--green); }
+.toast.error { border-left:4px solid var(--red); }
+
+footer { background:var(--navy); color:rgba(255,255,255,0.6); text-align:center; padding:24px; font-size:13px; margin-top:48px; }
+footer strong { color:var(--gold); }
+
+@media (max-width:768px) {
+  header { padding:0 16px; }
+  main { padding:0 16px 48px; }
+  .stats-grid { grid-template-columns:1fr 1fr; }
+  .cta-grid { grid-template-columns:1fr; }
+  .items-grid { grid-template-columns:1fr; }
+  .form-grid { grid-template-columns:1fr; }
+  .admin-layout { grid-template-columns:1fr; }
+  .admin-sidebar { display:none; }
+  nav button:not(.btn-nav-cta):not(#nav-admin) { display:none; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">Asociación de Gráficos del Paraguay — Bolsa Laboral del Sector Gráfico</div>
+
+<header>
+  <div class="header-inner">
+    <div class="logo" onclick="showPage('landing')">
+      <div class="logo-icon">🖨</div>
+      <div class="logo-text">
+        <strong>Bolsa Laboral Gráfica</strong>
+        <span>Asociación de Gráficos del Paraguay</span>
+      </div>
+    </div>
+    <nav>
+      <button onclick="showPage('landing')" id="nav-landing" class="active">Inicio</button>
+      <button onclick="showPage('vacantes')" id="nav-vacantes">Vacantes</button>
+      <button onclick="showPage('perfiles')" id="nav-perfiles">Profesionales</button>
+      <button onclick="showPage('form-vacante')" class="btn-nav-cta">Publicar Vacante</button>
+      <button onclick="showPage('form-perfil')" class="btn-nav-cta">Ofrecer Perfil</button>
+      <button onclick="showPage('admin')" id="nav-admin" style="margin-left:8px;color:rgba(255,255,255,0.4);font-size:12px">⚙ Admin</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- LANDING -->
+<div class="page active" id="page-landing">
+  <div class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">Paraguay · Sector Gráfico</div>
+      <h1>Conectamos <span>talento gráfico</span> con oportunidades reales</h1>
+      <p>La bolsa laboral oficial de la Asociación de Gráficos del Paraguay. Diseño, preprensa, impresión, terminación y todos los oficios del sector.</p>
+      <div class="hero-actions">
+        <button class="btn btn-primary" onclick="showPage('vacantes')">🔍 Ver vacantes disponibles</button>
+        <button class="btn btn-secondary" onclick="showPage('perfiles')">👥 Ver profesionales</button>
+      </div>
+    </div>
+  </div>
+  <div class="stats-grid" id="stats-grid"></div>
+  <h2 class="section-title">Categorías del sector</h2>
+  <p class="section-sub">Explorá vacantes y profesionales por área de especialización</p>
+  <div class="cats-grid" id="cats-grid"></div>
+  <div class="cta-grid">
+    <div class="cta-card empresas">
+      <h3>¿Necesitás personal?</h3>
+      <p>Publicá tu vacante y accedé a profesionales calificados del sector gráfico en todo Paraguay. Moderación rápida, publicación gratuita para asociados.</p>
+      <button class="btn btn-primary" onclick="showPage('form-vacante')">Publicar vacante →</button>
+    </div>
+    <div class="cta-card profesionales">
+      <h3>¿Buscás trabajo?</h3>
+      <p>Registrá tu perfil profesional y hacéte visible para las empresas del sector. Cargá tu experiencia y especialidades.</p>
+      <button class="btn btn-outline" onclick="showPage('form-perfil')" style="color:var(--navy);border-color:var(--gold)">Registrar mi perfil →</button>
+    </div>
+  </div>
+</div>
+
+<!-- VACANTES -->
+<div class="page" id="page-vacantes">
+  <div class="page-header">
+    <h2>Vacantes disponibles</h2>
+    <p>Oportunidades laborales activas en el sector gráfico</p>
+  </div>
+  <div class="filters-bar">
+    <div class="filter-group">
+      <label>Buscar</label>
+      <input type="text" id="vac-search" placeholder="Puesto, empresa…" oninput="renderVacantes()">
+    </div>
+    <div class="filter-group">
+      <label>Categoría</label>
+      <select id="vac-cat" onchange="updateEspVac();renderVacantes()"><option value="">Todas las categorías</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Especialidad</label>
+      <select id="vac-esp" onchange="renderVacantes()"><option value="">Todas</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Ciudad</label>
+      <select id="vac-ciudad" onchange="renderVacantes()"><option value="">Todas las ciudades</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Contrato</label>
+      <select id="vac-contrato" onchange="renderVacantes()">
+        <option value="">Cualquier tipo</option>
+        <option>Tiempo completo</option><option>Tiempo parcial</option>
+        <option>Por proyecto</option><option>Pasantía</option>
+      </select>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="clearFiltersVac()" style="align-self:flex-end">Limpiar</button>
+  </div>
+  <div class="results-count" id="vac-count"></div>
+  <div id="vac-grid"></div>
+</div>
+
+<!-- PERFILES -->
+<div class="page" id="page-perfiles">
+  <div class="page-header">
+    <h2>Profesionales disponibles</h2>
+    <p>Talentos del sector gráfico en búsqueda activa de empleo</p>
+  </div>
+  <div class="filters-bar">
+    <div class="filter-group">
+      <label>Buscar</label>
+      <input type="text" id="per-search" placeholder="Nombre, especialidad…" oninput="renderPerfiles()">
+    </div>
+    <div class="filter-group">
+      <label>Categoría</label>
+      <select id="per-cat" onchange="updateEspPer();renderPerfiles()"><option value="">Todas las categorías</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Especialidad</label>
+      <select id="per-esp" onchange="renderPerfiles()"><option value="">Todas</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Ciudad</label>
+      <select id="per-ciudad" onchange="renderPerfiles()"><option value="">Todas las ciudades</option></select>
+    </div>
+    <button class="btn btn-outline btn-sm" onclick="clearFiltersPer()" style="align-self:flex-end">Limpiar</button>
+  </div>
+  <div class="results-count" id="per-count"></div>
+  <div id="per-grid"></div>
+</div>
+
+<!-- FORM VACANTE -->
+<div class="page" id="page-form-vacante">
+  <div class="page-header">
+    <h2>Publicar vacante laboral</h2>
+    <p>Completá el formulario para publicar una búsqueda en el sector gráfico</p>
+  </div>
+  <div class="form-notice">ℹ️ <strong>Proceso de publicación:</strong> tu vacante será revisada por la Asociación antes de aparecer en el portal. El tiempo estimado de aprobación es de 24 a 48 horas hábiles.</div>
+  <div class="form-card">
+    <form id="form-vacante" onsubmit="submitVacante(event)">
+      <div class="form-section">
+        <div class="form-section-title">Datos de la empresa</div>
+        <div class="form-grid">
+          <div class="field"><label class="field-label">Empresa <span class="req">*</span></label><input type="text" id="fv-empresa" required placeholder="Nombre de la empresa"></div>
+          <div class="field"><label class="field-label">Persona de contacto <span class="req">*</span></label><input type="text" id="fv-contacto" required placeholder="Nombre y apellido"></div>
+          <div class="field"><label class="field-label">Email <span class="req">*</span></label><input type="email" id="fv-email" required placeholder="contacto@empresa.com"></div>
+          <div class="field"><label class="field-label">Teléfono <span class="req">*</span></label><input type="tel" id="fv-telefono" required placeholder="+595 21 000 000"></div>
+          <div class="field"><label class="field-label">Ciudad <span class="req">*</span></label><select id="fv-ciudad" required><option value="">Seleccioná ciudad</option></select></div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Detalle de la vacante</div>
+        <div class="form-grid">
+          <div class="field full"><label class="field-label">Puesto / cargo buscado <span class="req">*</span></label><input type="text" id="fv-puesto" required placeholder="Ej: Operador de impresión offset"></div>
+          <div class="field"><label class="field-label">Categoría profesional <span class="req">*</span></label><select id="fv-categoria" required onchange="updateFormEsp('fv-categoria','fv-especialidad')"><option value="">Seleccioná categoría</option></select></div>
+          <div class="field"><label class="field-label">Especialidad</label><select id="fv-especialidad"><option value="">Seleccioná especialidad</option></select></div>
+          <div class="field"><label class="field-label">Experiencia mínima <span class="req">*</span></label><select id="fv-experiencia" required><option value="">Seleccioná</option><option>Sin experiencia previa</option><option>1 año</option><option>2 años</option><option>3 a 5 años</option><option>Más de 5 años</option></select></div>
+          <div class="field"><label class="field-label">Tipo de contrato <span class="req">*</span></label><select id="fv-contrato" required><option value="">Seleccioná</option><option>Tiempo completo</option><option>Tiempo parcial</option><option>Por proyecto</option><option>Pasantía</option></select></div>
+          <div class="field full"><label class="field-label">Descripción del puesto <span class="req">*</span></label><textarea id="fv-descripcion" required rows="4" placeholder="Describí las tareas y responsabilidades…"></textarea></div>
+          <div class="field full"><label class="field-label">Requisitos</label><textarea id="fv-requisitos" rows="3" placeholder="Conocimientos, habilidades o certificaciones requeridas…"></textarea></div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Declaraciones legales</div>
+        <div class="checkbox-group"><input type="checkbox" id="fv-veracidad" required><label for="fv-veracidad">Declaro que toda la información proporcionada es veraz y corresponde a una búsqueda laboral genuina.</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="fv-autorizacion" required><label for="fv-autorizacion">Autorizo a la Asociación de Gráficos del Paraguay a publicar los datos de contacto indicados.</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="fv-terminos" required><label for="fv-terminos">Acepto los <a href="#" onclick="showPage('terminos');return false;" style="color:var(--gold)">Términos de Uso</a> del portal.</label></div>
+      </div>
+      <div class="form-success" id="success-vacante">
+        <div class="success-icon">✅</div>
+        <h4>¡Vacante enviada exitosamente!</h4>
+        <p>Tu publicación fue recibida y será revisada por el equipo de la Asociación en las próximas 24–48 horas hábiles.</p>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:8px" id="fv-actions">
+        <button type="submit" class="btn btn-primary" id="fv-submit">Enviar vacante →</button>
+        <button type="button" class="btn btn-outline" onclick="showPage('landing')">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- FORM PERFIL -->
+<div class="page" id="page-form-perfil">
+  <div class="page-header">
+    <h2>Registrar perfil profesional</h2>
+    <p>Completá tu perfil para que las empresas del sector puedan encontrarte</p>
+  </div>
+  <div class="form-notice">ℹ️ <strong>Proceso de publicación:</strong> tu perfil será revisado antes de aparecer en el portal. La aprobación demora entre 24 y 48 horas hábiles.</div>
+  <div class="form-card">
+    <form id="form-perfil" onsubmit="submitPerfil(event)">
+      <div class="form-section">
+        <div class="form-section-title">Datos personales</div>
+        <div class="form-grid">
+          <div class="field full"><label class="field-label">Nombre completo <span class="req">*</span></label><input type="text" id="fp-nombre" required placeholder="Tu nombre y apellido"></div>
+          <div class="field"><label class="field-label">Email <span class="req">*</span></label><input type="email" id="fp-email" required placeholder="tu@email.com"></div>
+          <div class="field"><label class="field-label">Teléfono <span class="req">*</span></label><input type="tel" id="fp-telefono" required placeholder="+595 981 000 000"></div>
+          <div class="field"><label class="field-label">Ciudad <span class="req">*</span></label><select id="fp-ciudad" required><option value="">Seleccioná ciudad</option></select></div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Perfil profesional</div>
+        <div class="form-grid">
+          <div class="field"><label class="field-label">Categoría profesional <span class="req">*</span></label><select id="fp-categoria" required onchange="updateFormEsp('fp-categoria','fp-especialidad')"><option value="">Seleccioná categoría</option></select></div>
+          <div class="field"><label class="field-label">Especialidad</label><select id="fp-especialidad"><option value="">Seleccioná especialidad</option></select></div>
+          <div class="field full"><label class="field-label">Cargo objetivo <span class="req">*</span></label><input type="text" id="fp-cargo" required placeholder="Ej: Operador de gran formato"></div>
+          <div class="field full"><label class="field-label">Experiencia laboral <span class="req">*</span></label><textarea id="fp-experiencia" required rows="4" placeholder="Describí tu trayectoria profesional…"></textarea></div>
+          <div class="field full"><label class="field-label">Habilidades</label><textarea id="fp-habilidades" rows="3" placeholder="Manejo de equipos, software, técnicas específicas…"></textarea></div>
+          <div class="field full"><label class="field-label">Formación académica</label><textarea id="fp-formacion" rows="3" placeholder="Estudios, cursos técnicos, certificaciones…"></textarea></div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="form-section-title">Declaraciones legales</div>
+        <div class="checkbox-group"><input type="checkbox" id="fp-veracidad" required><label for="fp-veracidad">Declaro que toda la información proporcionada es veraz y me pertenece.</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="fp-autorizacion" required><label for="fp-autorizacion">Autorizo a la Asociación de Gráficos del Paraguay a publicar mis datos de contacto y perfil profesional.</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="fp-terminos" required><label for="fp-terminos">Acepto los <a href="#" onclick="showPage('terminos');return false;" style="color:var(--gold)">Términos de Uso</a> del portal.</label></div>
+      </div>
+      <div class="form-success" id="success-perfil">
+        <div class="success-icon">✅</div>
+        <h4>¡Perfil enviado exitosamente!</h4>
+        <p>Tu perfil fue recibido y será revisado en las próximas 24–48 horas hábiles.</p>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:8px" id="fp-actions">
+        <button type="submit" class="btn btn-primary" id="fp-submit">Enviar perfil →</button>
+        <button type="button" class="btn btn-outline" onclick="showPage('landing')">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="page" id="page-admin">
+  <div class="admin-layout">
+    <div class="admin-sidebar">
+      <h4>Panel</h4>
+      <button class="sidebar-btn active" onclick="adminTab('dashboard')" id="sb-dashboard">📊 Dashboard</button>
+      <h4>Vacantes</h4>
+      <button class="sidebar-btn" onclick="adminTab('vac-pend')" id="sb-vac-pend">⏳ Pendientes <span class="count" id="cnt-vac-pend">0</span></button>
+      <button class="sidebar-btn" onclick="adminTab('vac-pub')" id="sb-vac-pub">✅ Publicadas <span class="count" id="cnt-vac-pub">0</span></button>
+      <button class="sidebar-btn" onclick="adminTab('vac-todas')" id="sb-vac-todas">📋 Todas</button>
+      <h4>Perfiles</h4>
+      <button class="sidebar-btn" onclick="adminTab('per-pend')" id="sb-per-pend">⏳ Pendientes <span class="count" id="cnt-per-pend">0</span></button>
+      <button class="sidebar-btn" onclick="adminTab('per-disp')" id="sb-per-disp">✅ Disponibles <span class="count" id="cnt-per-disp">0</span></button>
+      <button class="sidebar-btn" onclick="adminTab('per-todos')" id="sb-per-todos">📋 Todos</button>
+    </div>
+    <div class="admin-content" id="admin-content"></div>
+  </div>
+</div>
+
+<!-- TÉRMINOS -->
+<div class="page" id="page-terminos">
+  <div class="page-header"><h2>Términos de uso</h2><p>Condiciones de uso del portal de Bolsa Laboral del Sector Gráfico</p></div>
+  <div class="terms-content">
+    <h3>1. Declaración de veracidad</h3><p>Toda persona o empresa que registre información en este portal declara que los datos proporcionados son verdaderos, actuales y de su titularidad. La Asociación de Gráficos del Paraguay no verifica de manera independiente la veracidad de los datos publicados.</p>
+    <h3>2. Autorización de publicación</h3><p>Al registrar una vacante o perfil profesional, el usuario autoriza expresamente a la Asociación de Gráficos del Paraguay a publicar los datos de contacto e información proporcionados, con el único fin de facilitar la conexión entre empresas y profesionales del sector gráfico.</p>
+    <h3>3. Moderación de contenidos</h3><p>Todas las publicaciones serán revisadas por el equipo de la Asociación antes de su publicación. La Asociación se reserva el derecho de rechazar o dar de baja cualquier publicación que no cumpla con los criterios del portal.</p>
+    <h3>4. Limitación de responsabilidad</h3><p>La Asociación actúa exclusivamente como intermediario informativo y no es parte en ninguna relación laboral o comercial que pudiera surgir entre empresas y profesionales a través de este portal.</p>
+    <h3>5. Vigencia de las publicaciones</h3><p>Las vacantes tendrán vigencia máxima de 30 días desde su aprobación. Los perfiles profesionales tendrán vigencia de 90 días.</p>
+    <h3>6. Protección de datos</h3><p>Los datos personales se utilizarán exclusivamente para los fines del portal. No serán cedidos a terceros ajenos al proceso de intermediación laboral.</p>
+  </div>
+</div>
+
+</main>
+
+<!-- Modales -->
+<div class="modal-overlay" id="modal-vacante"><div class="modal"><button class="modal-close" onclick="closeModal('modal-vacante')">✕</button><div id="modal-vacante-content"></div></div></div>
+<div class="modal-overlay" id="modal-perfil"><div class="modal"><button class="modal-close" onclick="closeModal('modal-perfil')">✕</button><div id="modal-perfil-content"></div></div></div>
+
+<footer>
+  <strong>Bolsa Laboral del Sector Gráfico</strong> — Asociación de Gráficos del Paraguay ·
+  <a href="#" onclick="showPage('terminos');return false;" style="color:var(--gold)">Términos de uso</a>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CONFIGURACIÓN SUPABASE
+// Reemplazá estos valores con los de tu proyecto en supabase.com
+// Panel → Settings → API
+// ═══════════════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://gbmdovcqrkdbrrpbiwvk.supabase.co'; 
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdibWRvdmNxcmtkYnJycGJpd3ZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NDE4MDgsImV4cCI6MjA5MTMxNzgwOH0.ngxDjVD_lcADE-Ag8CX_d9mkj5K2RM0LXfsKfZFWSUc';
+
+// ─── Helper para llamadas a la API de Supabase ──────────────────
+async function sbFetch(endpoint, options = {}) {
+  const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': options.prefer || 'return=representation',
+      ...(options.headers || {})
+    }
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `Error ${res.status}`);
+  }
+  return options.method === 'DELETE' ? null : res.json();
+}
+
+// ─── CRUD Vacantes ───────────────────────────────────────────────
+const db = {
+  async getVacantes(filters = {}) {
+    let q = 'vacantes?order=fecha_publicacion.desc';
+    if (filters.estado) q += `&estado=eq.${encodeURIComponent(filters.estado)}`;
+    return sbFetch(q);
+  },
+  async getPerfiles(filters = {}) {
+    let q = 'perfiles?order=fecha_registro.desc';
+    if (filters.estado) q += `&estado=eq.${encodeURIComponent(filters.estado)}`;
+    return sbFetch(q);
+  },
+  async insertVacante(data) {
+    return sbFetch('vacantes', { method: 'POST', body: JSON.stringify(data) });
+  },
+  async insertPerfil(data) {
+    return sbFetch('perfiles', { method: 'POST', body: JSON.stringify(data) });
+  },
+  async updateVacante(id, data) {
+    return sbFetch(`vacantes?id=eq.${id}`, {
+      method: 'PATCH', body: JSON.stringify(data), prefer: 'return=minimal'
+    });
+  },
+  async updatePerfil(id, data) {
+    return sbFetch(`perfiles?id=eq.${id}`, {
+      method: 'PATCH', body: JSON.stringify(data), prefer: 'return=minimal'
+    });
+  }
+};
+
+// ─── Cache local para filtros ────────────────────────────────────
+let _vacantes = [];
+let _perfiles = [];
+let _dbOnline = false;
+
+// ═══════════════════════════════════════════════════════════════
+// DATOS MAESTROS
+// ═══════════════════════════════════════════════════════════════
+const CATEGORIAS = [
+  { id:'c1', nombre:'Diseño y Creatividad', icon:'🎨', especialidades:['Diseño gráfico','Diseño editorial','Diseño de packaging','Dirección de arte','Ilustración'] },
+  { id:'c2', nombre:'Preprensa', icon:'🖥', especialidades:['Maquetación','Gestión de color','Imposición digital','Tratamiento de imágenes','Pruebas de color'] },
+  { id:'c3', nombre:'Impresión Offset', icon:'🏭', especialidades:['Operador offset pliego','Operador offset bobina','Ajustador de offset','Control de calidad offset'] },
+  { id:'c4', nombre:'Impresión Digital', icon:'🖨', especialidades:['Operador digital','Impresión UV','Impresión en textiles','Variable data printing'] },
+  { id:'c5', nombre:'Gran Formato', icon:'📐', especialidades:['Operador plóter','Rotulación vehicular','Montaje de banners','Impresión en rígidos'] },
+  { id:'c6', nombre:'Serigrafía', icon:'👕', especialidades:['Serígrafo en indumentaria','Serígrafo industrial','Preparación de marcos','Serigrafía en vidrio'] },
+  { id:'c7', nombre:'Terminación / Postprensa', icon:'✂️', especialidades:['Encuadernación','Troquelado','Plastificación','Barnizado','Corte y plegado'] },
+  { id:'c8', nombre:'Instalación gráfica', icon:'🔧', especialidades:['Instalador de vinilos','Instalador en vidrieras','Rotulista','Aplicación en vehículos'] },
+  { id:'c9', nombre:'Producción y gestión', icon:'📋', especialidades:['Jefe de producción','Planificador de trabajos','Control de stock','Presupuestista'] },
+  { id:'c10', nombre:'Comercial del sector', icon:'💼', especialidades:['Vendedor de insumos gráficos','Ejecutivo de cuenta','Atención al cliente gráfico'] },
+  { id:'c11', nombre:'Logística', icon:'🚚', especialidades:['Distribución de impresos','Depósito y almacenaje','Gestión de envíos'] },
+];
+const CIUDADES = ['Asunción','San Lorenzo','Luque','Fernando de la Mora','Lambaré','Capiatá','Ñemby','Villa Elisa','Limpio','Mariano Roque Alonso','Encarnación','Ciudad del Este','Pedro Juan Caballero','Coronel Oviedo','Concepción'];
+
+// ═══════════════════════════════════════════════════════════════
+// NAVEGACIÓN
+// ═══════════════════════════════════════════════════════════════
+let currentAdminTab = 'dashboard';
+
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('nav button[id^=nav-]').forEach(b => b.classList.remove('active'));
+  const page = document.getElementById('page-' + p);
+  if (page) page.classList.add('active');
+  const nb = document.getElementById('nav-' + p);
+  if (nb) nb.classList.add('active');
+  window.scrollTo(0, 0);
+  if (p === 'landing') renderLanding();
+  if (p === 'vacantes') loadAndRenderVacantes();
+  if (p === 'perfiles') loadAndRenderPerfiles();
+  if (p === 'admin') loadAdmin();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INICIALIZACIÓN DE SELECTS
+// ═══════════════════════════════════════════════════════════════
+function populateSelects() {
+  ['vac-cat','per-cat','fv-categoria','fp-categoria'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    CATEGORIAS.forEach(c => {
+      const o = new Option(c.nombre, c.nombre);
+      el.appendChild(o);
+    });
+  });
+  ['fv-ciudad','fp-ciudad','vac-ciudad','per-ciudad'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    CIUDADES.forEach(c => {
+      const o = new Option(c, c);
+      el.appendChild(o);
+    });
+  });
+}
+
+function getCatEsp(catNombre) {
+  const c = CATEGORIAS.find(c => c.nombre === catNombre);
+  return c ? c.especialidades : [];
+}
+function updateFormEsp(catId, espId) {
+  const val = document.getElementById(catId).value;
+  const sel = document.getElementById(espId);
+  sel.innerHTML = '<option value="">Seleccioná especialidad</option>';
+  getCatEsp(val).forEach(e => sel.appendChild(new Option(e, e)));
+}
+function updateEspVac() {
+  const val = document.getElementById('vac-cat').value;
+  const sel = document.getElementById('vac-esp');
+  sel.innerHTML = '<option value="">Todas</option>';
+  getCatEsp(val).forEach(e => sel.appendChild(new Option(e, e)));
+}
+function updateEspPer() {
+  const val = document.getElementById('per-cat').value;
+  const sel = document.getElementById('per-esp');
+  sel.innerHTML = '<option value="">Todas</option>';
+  getCatEsp(val).forEach(e => sel.appendChild(new Option(e, e)));
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LANDING
+// ═══════════════════════════════════════════════════════════════
+async function renderLanding() {
+  // Estadísticas
+  const sg = document.getElementById('stats-grid');
+  sg.innerHTML = `<div class="stat-card"><div class="spinner"></div></div>`.repeat(4);
+  try {
+    const [vac, per] = await Promise.all([db.getVacantes(), db.getPerfiles()]);
+    const stats = [
+      { num: vac.filter(v=>v.estado==='Publicada').length, label:'Vacantes activas', icon:'📋' },
+      { num: vac.filter(v=>v.estado==='Concretada').length, label:'Vacantes concretadas', icon:'🤝' },
+      { num: per.filter(p=>p.estado==='Disponible').length, label:'Profesionales disponibles', icon:'👤' },
+      { num: per.filter(p=>p.estado==='Contratado').length, label:'Profesionales contratados', icon:'✅' },
+    ];
+    sg.innerHTML = stats.map(s =>
+      `<div class="stat-card"><div class="stat-icon">${s.icon}</div><div class="stat-num">${s.num}</div><div class="stat-label">${s.label}</div></div>`
+    ).join('');
+    _dbOnline = true;
+  } catch(e) {
+    sg.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--gray-600);font-size:14px">⚠️ No se pudo conectar con la base de datos. Verificá la configuración de Supabase.</div>`;
+  }
+  // Categorías
+  document.getElementById('cats-grid').innerHTML = CATEGORIAS.map(c =>
+    `<div class="cat-chip" onclick="filterByCat('${c.nombre}')"><span class="cat-icon">${c.icon}</span><span>${c.nombre}</span></div>`
+  ).join('');
+}
+
+function filterByCat(cat) {
+  showPage('vacantes');
+  document.getElementById('vac-cat').value = cat;
+  updateEspVac();
+  renderVacantes();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LISTADO VACANTES
+// ═══════════════════════════════════════════════════════════════
+async function loadAndRenderVacantes() {
+  document.getElementById('vac-grid').innerHTML = loading();
+  try {
+    _vacantes = await db.getVacantes({ estado: 'Publicada' });
+    renderVacantes();
+  } catch(e) {
+    document.getElementById('vac-grid').innerHTML = dbError();
+  }
+}
+
+function renderVacantes() {
+  const search = document.getElementById('vac-search').value.toLowerCase();
+  const cat = document.getElementById('vac-cat').value;
+  const esp = document.getElementById('vac-esp').value;
+  const ciudad = document.getElementById('vac-ciudad').value;
+  const contrato = document.getElementById('vac-contrato').value;
+
+  let items = _vacantes.filter(v => v.estado === 'Publicada');
+  if (search) items = items.filter(v =>
+    (v.puesto||'').toLowerCase().includes(search) ||
+    (v.empresa||'').toLowerCase().includes(search) ||
+    (v.descripcion||'').toLowerCase().includes(search)
+  );
+  if (cat) items = items.filter(v => v.categoria === cat);
+  if (esp) items = items.filter(v => v.especialidad === esp);
+  if (ciudad) items = items.filter(v => v.ciudad === ciudad);
+  if (contrato) items = items.filter(v => v.tipo_contrato === contrato);
+
+  document.getElementById('vac-count').innerHTML =
+    `<strong>${items.length}</strong> vacante${items.length !== 1 ? 's' : ''} encontrada${items.length !== 1 ? 's' : ''}`;
+
+  if (!items.length) {
+    document.getElementById('vac-grid').innerHTML =
+      `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🔍</div><p>No hay vacantes que coincidan con los filtros seleccionados.</p></div>`;
+    return;
+  }
+  document.getElementById('vac-grid').innerHTML =
+    `<div class="items-grid">${items.map(v => vacCard(v)).join('')}</div>`;
+}
+
+function vacCard(v) {
+  return `<div class="card" onclick="openVacante('${v.id}')">
+    <div class="card-header">
+      <div><div class="card-title">${v.puesto}</div><div class="card-company">${v.empresa}</div></div>
+      <span class="badge badge-gold">${v.tipo_contrato||''}</span>
+    </div>
+    <div class="card-meta">
+      <span class="meta-item">📍 ${v.ciudad}</span>
+      <span class="meta-item">🕐 ${v.experiencia_minima||''}</span>
+    </div>
+    <div class="card-meta">
+      <span class="badge badge-navy">${v.categoria}</span>
+      ${v.especialidad ? `<span class="badge badge-gray">${v.especialidad}</span>` : ''}
+    </div>
+    <div class="card-desc">${v.descripcion||''}</div>
+    <div class="card-footer">
+      <span class="card-date">📅 ${formatDate(v.fecha_publicacion)}</span>
+      <span class="btn btn-sm btn-outline" style="pointer-events:none">Ver detalle →</span>
+    </div>
+  </div>`;
+}
+
+function clearFiltersVac() {
+  ['vac-search','vac-cat','vac-esp','vac-ciudad','vac-contrato'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  renderVacantes();
+}
+
+function openVacante(id) {
+  const v = _vacantes.find(v => v.id === id);
+  if (!v) return;
+  document.getElementById('modal-vacante-content').innerHTML = `
+    <h3>${v.puesto}</h3>
+    <div class="modal-company">${v.empresa} · ${v.ciudad}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">
+      <span class="badge badge-gold">${v.tipo_contrato||''}</span>
+      <span class="badge badge-navy">${v.categoria}</span>
+      ${v.especialidad ? `<span class="badge badge-gray">${v.especialidad}</span>` : ''}
+      <span class="badge badge-blue">Exp: ${v.experiencia_minima||''}</span>
+    </div>
+    <div class="modal-section"><div class="modal-section-title">Descripción del puesto</div><div class="modal-text">${v.descripcion||''}</div></div>
+    ${v.requisitos ? `<div class="modal-section"><div class="modal-section-title">Requisitos</div><div class="modal-text">${v.requisitos}</div></div>` : ''}
+    <div class="modal-section"><div class="modal-section-title">Contacto</div>
+      <div class="contact-block">
+        <div class="contact-item"><span>Empresa</span>${v.empresa}</div>
+        <div class="contact-item"><span>Contacto</span>${v.contacto||''}</div>
+        <div class="contact-item"><span>Email</span>${v.email}</div>
+        <div class="contact-item"><span>Teléfono</span>${v.telefono}</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--gray-400);margin-top:16px">Publicado el ${formatDate(v.fecha_publicacion)} · Vigencia 30 días</div>
+  `;
+  document.getElementById('modal-vacante').classList.add('open');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LISTADO PERFILES
+// ═══════════════════════════════════════════════════════════════
+async function loadAndRenderPerfiles() {
+  document.getElementById('per-grid').innerHTML = loading();
+  try {
+    _perfiles = await db.getPerfiles({ estado: 'Disponible' });
+    renderPerfiles();
+  } catch(e) {
+    document.getElementById('per-grid').innerHTML = dbError();
+  }
+}
+
+function renderPerfiles() {
+  const search = document.getElementById('per-search').value.toLowerCase();
+  const cat = document.getElementById('per-cat').value;
+  const esp = document.getElementById('per-esp').value;
+  const ciudad = document.getElementById('per-ciudad').value;
+
+  let items = _perfiles.filter(p => p.estado === 'Disponible');
+  if (search) items = items.filter(p =>
+    (p.nombre||'').toLowerCase().includes(search) ||
+    (p.cargo_objetivo||'').toLowerCase().includes(search) ||
+    (p.especialidad||'').toLowerCase().includes(search)
+  );
+  if (cat) items = items.filter(p => p.categoria === cat);
+  if (esp) items = items.filter(p => p.especialidad === esp);
+  if (ciudad) items = items.filter(p => p.ciudad === ciudad);
+
+  document.getElementById('per-count').innerHTML =
+    `<strong>${items.length}</strong> profesional${items.length !== 1 ? 'es' : ''} encontrado${items.length !== 1 ? 's' : ''}`;
+
+  if (!items.length) {
+    document.getElementById('per-grid').innerHTML =
+      `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">👤</div><p>No hay perfiles que coincidan con los filtros seleccionados.</p></div>`;
+    return;
+  }
+  document.getElementById('per-grid').innerHTML =
+    `<div class="items-grid">${items.map(p => perCard(p)).join('')}</div>`;
+}
+
+function perCard(p) {
+  return `<div class="card" onclick="openPerfil('${p.id}')">
+    <div class="card-header">
+      <div><div class="card-title">${p.nombre}</div><div class="card-company">${p.cargo_objetivo}</div></div>
+      <span class="badge badge-green">Disponible</span>
+    </div>
+    <div class="card-meta"><span class="meta-item">📍 ${p.ciudad}</span></div>
+    <div class="card-meta">
+      <span class="badge badge-navy">${p.categoria}</span>
+      ${p.especialidad ? `<span class="badge badge-gray">${p.especialidad}</span>` : ''}
+    </div>
+    <div class="card-desc">${p.experiencia_laboral||''}</div>
+    <div class="card-footer">
+      <span class="card-date">📅 ${formatDate(p.fecha_registro)}</span>
+      <span class="btn btn-sm btn-outline" style="pointer-events:none">Ver perfil →</span>
+    </div>
+  </div>`;
+}
+
+function clearFiltersPer() {
+  ['per-search','per-cat','per-esp','per-ciudad'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  renderPerfiles();
+}
+
+function openPerfil(id) {
+  const p = _perfiles.find(p => p.id === id);
+  if (!p) return;
+  document.getElementById('modal-perfil-content').innerHTML = `
+    <h3>${p.nombre}</h3>
+    <div class="modal-company">${p.cargo_objetivo} · ${p.ciudad}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">
+      <span class="badge badge-green">Disponible</span>
+      <span class="badge badge-navy">${p.categoria}</span>
+      ${p.especialidad ? `<span class="badge badge-gray">${p.especialidad}</span>` : ''}
+    </div>
+    <div class="modal-section"><div class="modal-section-title">Experiencia laboral</div><div class="modal-text">${p.experiencia_laboral||''}</div></div>
+    ${p.habilidades ? `<div class="modal-section"><div class="modal-section-title">Habilidades</div><div class="modal-text">${p.habilidades}</div></div>` : ''}
+    ${p.formacion ? `<div class="modal-section"><div class="modal-section-title">Formación</div><div class="modal-text">${p.formacion}</div></div>` : ''}
+    <div class="modal-section"><div class="modal-section-title">Contacto</div>
+      <div class="contact-block">
+        <div class="contact-item"><span>Nombre</span>${p.nombre}</div>
+        <div class="contact-item"><span>Email</span>${p.email}</div>
+        <div class="contact-item"><span>Teléfono</span>${p.telefono}</div>
+        <div class="contact-item"><span>Ciudad</span>${p.ciudad}</div>
+      </div>
+    </div>
+  `;
+  document.getElementById('modal-perfil').classList.add('open');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FORMULARIOS
+// ═══════════════════════════════════════════════════════════════
+async function submitVacante(e) {
+  e.preventDefault();
+  const btn = document.getElementById('fv-submit');
+  btn.disabled = true; btn.textContent = 'Enviando…';
+  const data = {
+    empresa: document.getElementById('fv-empresa').value,
+    contacto: document.getElementById('fv-contacto').value,
+    email: document.getElementById('fv-email').value,
+    telefono: document.getElementById('fv-telefono').value,
+    ciudad: document.getElementById('fv-ciudad').value,
+    puesto: document.getElementById('fv-puesto').value,
+    categoria: document.getElementById('fv-categoria').value,
+    especialidad: document.getElementById('fv-especialidad').value,
+    experiencia_minima: document.getElementById('fv-experiencia').value,
+    tipo_contrato: document.getElementById('fv-contrato').value,
+    descripcion: document.getElementById('fv-descripcion').value,
+    requisitos: document.getElementById('fv-requisitos').value,
+    estado: 'Pendiente',
+    fecha_publicacion: new Date().toISOString().split('T')[0],
+    fecha_vencimiento: new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0]
+  };
+  try {
+    await db.insertVacante(data);
+    document.getElementById('success-vacante').style.display = 'block';
+    document.getElementById('fv-actions').style.display = 'none';
+    showToast('✅ Vacante enviada — pendiente de aprobación', 'success');
+  } catch(err) {
+    btn.disabled = false; btn.textContent = 'Enviar vacante →';
+    showToast('❌ Error al enviar: ' + err.message, 'error');
+  }
+}
+
+async function submitPerfil(e) {
+  e.preventDefault();
+  const btn = document.getElementById('fp-submit');
+  btn.disabled = true; btn.textContent = 'Enviando…';
+  const data = {
+    nombre: document.getElementById('fp-nombre').value,
+    email: document.getElementById('fp-email').value,
+    telefono: document.getElementById('fp-telefono').value,
+    ciudad: document.getElementById('fp-ciudad').value,
+    categoria: document.getElementById('fp-categoria').value,
+    especialidad: document.getElementById('fp-especialidad').value,
+    cargo_objetivo: document.getElementById('fp-cargo').value,
+    experiencia_laboral: document.getElementById('fp-experiencia').value,
+    habilidades: document.getElementById('fp-habilidades').value,
+    formacion: document.getElementById('fp-formacion').value,
+    estado: 'Pendiente',
+    fecha_registro: new Date().toISOString().split('T')[0],
+    fecha_vencimiento: new Date(Date.now() + 90*24*60*60*1000).toISOString().split('T')[0]
+  };
+  try {
+    await db.insertPerfil(data);
+    document.getElementById('success-perfil').style.display = 'block';
+    document.getElementById('fp-actions').style.display = 'none';
+    showToast('✅ Perfil enviado — pendiente de aprobación', 'success');
+  } catch(err) {
+    btn.disabled = false; btn.textContent = 'Enviar perfil →';
+    showToast('❌ Error al enviar: ' + err.message, 'error');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PANEL ADMIN
+// ═══════════════════════════════════════════════════════════════
+async function loadAdmin() {
+  updateAdminCounts();
+  adminTab(currentAdminTab);
+}
+
+async function updateAdminCounts() {
+  try {
+    const [vac, per] = await Promise.all([db.getVacantes(), db.getPerfiles()]);
+    document.getElementById('cnt-vac-pend').textContent = vac.filter(v=>v.estado==='Pendiente').length;
+    document.getElementById('cnt-vac-pub').textContent = vac.filter(v=>v.estado==='Publicada').length;
+    document.getElementById('cnt-per-pend').textContent = per.filter(p=>p.estado==='Pendiente').length;
+    document.getElementById('cnt-per-disp').textContent = per.filter(p=>p.estado==='Disponible').length;
+  } catch(e) {}
+}
+
+async function adminTab(tab) {
+  currentAdminTab = tab;
+  document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+  const sb = document.getElementById('sb-' + tab);
+  if (sb) sb.classList.add('active');
+  const c = document.getElementById('admin-content');
+  c.innerHTML = loading();
+
+  try {
+    if (tab === 'dashboard') {
+      const [vac, per] = await Promise.all([db.getVacantes(), db.getPerfiles()]);
+      c.innerHTML = `
+        <div class="admin-header"><h2>Dashboard</h2></div>
+        ${dbStatusBanner()}
+        <div class="admin-stats">
+          <div class="admin-stat pend"><div class="num">${vac.filter(v=>v.estado==='Pendiente').length}</div><div class="lbl">Vacantes pendientes</div></div>
+          <div class="admin-stat"><div class="num">${vac.filter(v=>v.estado==='Publicada').length}</div><div class="lbl">Vacantes publicadas</div></div>
+          <div class="admin-stat pend"><div class="num">${per.filter(p=>p.estado==='Pendiente').length}</div><div class="lbl">Perfiles pendientes</div></div>
+          <div class="admin-stat"><div class="num">${per.filter(p=>p.estado==='Disponible').length}</div><div class="lbl">Perfiles disponibles</div></div>
+        </div>
+        <div class="admin-stats" style="grid-template-columns:repeat(3,1fr)">
+          <div class="admin-stat"><div class="num">${vac.filter(v=>v.estado==='Concretada').length}</div><div class="lbl">Vacantes concretadas</div></div>
+          <div class="admin-stat"><div class="num">${per.filter(p=>p.estado==='Contratado').length}</div><div class="lbl">Profesionales contratados</div></div>
+          <div class="admin-stat"><div class="num">${vac.length + per.length}</div><div class="lbl">Total registros</div></div>
+        </div>
+        <div class="table-card">
+          <div class="table-toolbar"><h3>Últimas vacantes pendientes</h3></div>
+          ${vacTable(vac.filter(v=>v.estado==='Pendiente').slice(0,8))}
+        </div>`;
+    }
+    else if (tab === 'vac-pend') { const vac = await db.getVacantes(); renderAdminVac(c, vac, 'Pendiente'); }
+    else if (tab === 'vac-pub')  { const vac = await db.getVacantes(); renderAdminVac(c, vac, 'Publicada'); }
+    else if (tab === 'vac-todas'){ const vac = await db.getVacantes(); renderAdminVac(c, vac, null); }
+    else if (tab === 'per-pend') { const per = await db.getPerfiles(); renderAdminPer(c, per, 'Pendiente'); }
+    else if (tab === 'per-disp') { const per = await db.getPerfiles(); renderAdminPer(c, per, 'Disponible'); }
+    else if (tab === 'per-todos'){ const per = await db.getPerfiles(); renderAdminPer(c, per, null); }
+  } catch(e) {
+    c.innerHTML = dbError();
+  }
+}
+
+function renderAdminVac(c, vac, estadoFilter) {
+  const items = estadoFilter ? vac.filter(v => v.estado === estadoFilter) : vac;
+  const title = estadoFilter ? `Vacantes — ${estadoFilter}` : 'Todas las vacantes';
+  c.innerHTML = `
+    <div class="admin-header"><h2>${title}</h2>
+      ${estadoFilter==='Pendiente' ? '<span class="badge badge-orange">Requieren revisión</span>' : ''}
+    </div>
+    ${dbStatusBanner()}
+    <div class="table-card">${vacTable(items)}</div>`;
+}
+
+function renderAdminPer(c, per, estadoFilter) {
+  const items = estadoFilter ? per.filter(p => p.estado === estadoFilter) : per;
+  const title = estadoFilter ? `Perfiles — ${estadoFilter}` : 'Todos los perfiles';
+  c.innerHTML = `
+    <div class="admin-header"><h2>${title}</h2>
+      ${estadoFilter==='Pendiente' ? '<span class="badge badge-orange">Requieren revisión</span>' : ''}
+    </div>
+    ${dbStatusBanner()}
+    <div class="table-card">${perTable(items)}</div>`;
+}
+
+function vacTable(items) {
+  if (!items.length) return '<div class="empty-state"><div class="empty-icon">📋</div><p>No hay registros.</p></div>';
+  return `<table><thead><tr>
+    <th>Puesto / Empresa</th><th>Ciudad</th><th>Categoría</th><th>Estado</th><th>Fecha</th><th>Acciones</th>
+  </tr></thead><tbody>
+  ${items.map(v => `<tr>
+    <td><div class="td-title">${v.puesto}</div><div class="td-sub">${v.empresa}</div></td>
+    <td>${v.ciudad}</td>
+    <td><span class="badge badge-navy" style="font-size:11px">${v.categoria}</span></td>
+    <td>${estadoBadge(v.estado)}</td>
+    <td style="white-space:nowrap">${formatDate(v.fecha_publicacion)}</td>
+    <td><div class="action-btns">
+      ${v.estado==='Pendiente' ? `<button class="btn btn-sm btn-success" onclick="cambiarEstadoVac('${v.id}','Publicada')">✓ Aprobar</button>` : ''}
+      ${v.estado==='Publicada' ? `<button class="btn btn-sm btn-success" onclick="cambiarEstadoVac('${v.id}','Concretada')">🤝</button>` : ''}
+      ${['Pendiente','Publicada'].includes(v.estado) ? `<button class="btn btn-sm btn-danger" onclick="cambiarEstadoVac('${v.id}','Cancelada')">✕</button>` : ''}
+    </div></td>
+  </tr>`).join('')}
+  </tbody></table>`;
+}
+
+function perTable(items) {
+  if (!items.length) return '<div class="empty-state"><div class="empty-icon">👤</div><p>No hay registros.</p></div>';
+  return `<table><thead><tr>
+    <th>Nombre / Cargo</th><th>Ciudad</th><th>Categoría</th><th>Estado</th><th>Fecha</th><th>Acciones</th>
+  </tr></thead><tbody>
+  ${items.map(p => `<tr>
+    <td><div class="td-title">${p.nombre}</div><div class="td-sub">${p.cargo_objetivo}</div></td>
+    <td>${p.ciudad}</td>
+    <td><span class="badge badge-navy" style="font-size:11px">${p.categoria}</span></td>
+    <td>${estadoBadgePer(p.estado)}</td>
+    <td style="white-space:nowrap">${formatDate(p.fecha_registro)}</td>
+    <td><div class="action-btns">
+      ${p.estado==='Pendiente' ? `<button class="btn btn-sm btn-success" onclick="cambiarEstadoPer('${p.id}','Disponible')">✓ Aprobar</button>` : ''}
+      ${p.estado==='Disponible' ? `<button class="btn btn-sm btn-success" onclick="cambiarEstadoPer('${p.id}','Contratado')">🤝</button>` : ''}
+      ${['Pendiente','Disponible'].includes(p.estado) ? `<button class="btn btn-sm btn-danger" onclick="cambiarEstadoPer('${p.id}','No disponible')">✕</button>` : ''}
+    </div></td>
+  </tr>`).join('')}
+  </tbody></table>`;
+}
+
+async function cambiarEstadoVac(id, estado) {
+  try {
+    await db.updateVacante(id, { estado });
+    showToast(`Vacante → ${estado}`, 'success');
+    adminTab(currentAdminTab);
+    updateAdminCounts();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function cambiarEstadoPer(id, estado) {
+  try {
+    await db.updatePerfil(id, { estado });
+    showToast(`Perfil → ${estado}`, 'success');
+    adminTab(currentAdminTab);
+    updateAdminCounts();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UTILIDADES
+// ═══════════════════════════════════════════════════════════════
+function loading() {
+  return `<div class="loading-state"><div class="spinner"></div><p>Cargando datos…</p></div>`;
+}
+function dbError() {
+  return `<div class="empty-state"><div class="empty-icon">⚠️</div><p>No se pudo conectar con la base de datos.<br>Verificá la configuración de Supabase en el archivo index.html.</p></div>`;
+}
+function dbStatusBanner() {
+  return `<div class="db-banner"><div class="dot"></div><span>Conectado a <strong>Supabase</strong> — base de datos en la nube</span></div>`;
+}
+function estadoBadge(e) {
+  const m = { 'Pendiente':'badge-orange','Publicada':'badge-green','Concretada':'badge-blue','Cancelada':'badge-red','Vencida':'badge-gray' };
+  return `<span class="badge ${m[e]||'badge-gray'}">${e}</span>`;
+}
+function estadoBadgePer(e) {
+  const m = { 'Pendiente':'badge-orange','Disponible':'badge-green','Contratado':'badge-blue','No disponible':'badge-gray' };
+  return `<span class="badge ${m[e]||'badge-gray'}">${e}</span>`;
+}
+function formatDate(d) {
+  if (!d) return '—';
+  return new Date(d + 'T12:00:00').toLocaleDateString('es-PY', { day:'2-digit', month:'short', year:'numeric' });
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (type || '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+document.querySelectorAll('.modal-overlay').forEach(el =>
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); })
+);
+
+// ─── INIT ────────────────────────────────────────────────────────
+populateSelects();
+renderLanding();
+</script>
+</body>
+</html>
