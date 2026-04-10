@@ -58,8 +58,8 @@ body { font-family:'Inter',sans-serif; background:var(--gray-50); color:var(--te
 
 /* HEADER */
 header { background:var(--white); padding:0 32px; position:sticky; top:0; z-index:100; border-bottom:2px solid var(--blue); box-shadow:var(--shadow-sm); }
-.header-inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; height:64px; }
-.logo { display:flex; align-items:center; gap:12px; cursor:pointer; }
+.header-inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; height:64px; gap:8px; overflow:hidden; }
+.logo { display:flex; align-items:center; gap:12px; cursor:pointer; min-width:0; flex:1 1 auto; overflow:hidden; }
 .logo-icon { width:38px; height:38px; background:var(--gold); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; }
 .logo-text { color:var(--blue); min-width:0; overflow:hidden; }
 .logo-text strong { display:block; font-family:'Plus Jakarta Sans',sans-serif; font-size:15px; line-height:1.2; color:var(--blue-dark); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -292,7 +292,7 @@ footer { background:var(--blue-dark); color:rgba(255,255,255,0.65); text-align:c
 footer strong { color:rgba(255,255,255,0.95); }
 
 @media (max-width:768px) {
-  header { padding:0 16px; }
+  header { padding:0 12px; }
   main { padding:0 16px 48px; }
   .stats-grid { grid-template-columns:1fr 1fr; }
   .cta-grid { grid-template-columns:1fr; }
@@ -301,6 +301,9 @@ footer strong { color:rgba(255,255,255,0.95); }
   .admin-layout { grid-template-columns:1fr; }
   .admin-sidebar { display:none; }
   nav button:not(.btn-nav-cta):not(#nav-admin) { display:none; }
+  .btn-nav-cta { font-size:11px !important; padding:6px 8px !important; margin-left:4px !important; }
+  #nav-admin { font-size:11px !important; padding:5px 7px !important; margin-left:4px !important; }
+  nav { gap:0; flex-shrink:0; }
 }
 </style>
 </head>
@@ -324,7 +327,7 @@ footer strong { color:rgba(255,255,255,0.95); }
       <button onclick="showPage('perfiles')" id="nav-perfiles">Profesionales</button>
       <button onclick="showPage('form-vacante')" class="btn-nav-cta btn-nav-red">Publicar Vacante</button>
       <button onclick="showPage('form-perfil')" class="btn-nav-cta">Ofrecer Perfil</button>
-      <button onclick="showPage('admin')" id="nav-admin" style="margin-left:8px;color:rgba(255,255,255,0.65);font-size:12px;border:1px solid rgba(255,255,255,0.3);border-radius:4px;padding:4px 8px;">⚙ Admin</button>
+      <button onclick="showPage('admin')" id="nav-admin" style="margin-left:8px;font-size:12px;background:white;color:var(--blue-dark);border:1.5px solid var(--gray-200);border-radius:6px;padding:5px 10px;font-weight:600;">⚙ Admin</button>
     </nav>
   </div>
 </header>
@@ -463,7 +466,7 @@ footer strong { color:rgba(255,255,255,0.95); }
         <div class="form-section-title">Declaraciones legales</div>
         <div class="checkbox-group"><input type="checkbox" id="fv-veracidad" required><label for="fv-veracidad">Declaro que toda la información proporcionada es veraz y corresponde a una búsqueda laboral genuina.</label></div>
         <div class="checkbox-group"><input type="checkbox" id="fv-autorizacion" required><label for="fv-autorizacion">Autorizo a la Asociación de Industriales Gráficos del Paraguay a publicar los datos de contacto indicados.</label></div>
-        <div class="checkbox-group"><input type="checkbox" id="fv-terminos" required><label for="fv-terminos">Acepto los <a href="#" onclick="showPage('terminos');return false;" style="color:rgba(255,255,255,0.75)">Términos de Uso</a> del portal.</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="fv-terminos" required><label for="fv-terminos">Acepto los <a href="#" onclick="showPage('terminos');return false;" style="color:var(--blue);font-weight:600;text-decoration:underline;">Términos de Uso</a> del portal.</label></div>
       </div>
       <div class="form-success" id="success-vacante">
         <div class="success-icon">✅</div>
@@ -511,7 +514,7 @@ footer strong { color:rgba(255,255,255,0.95); }
         <div class="form-section-title">Declaraciones legales</div>
         <div class="checkbox-group"><input type="checkbox" id="fp-veracidad" required><label for="fp-veracidad">Declaro que toda la información proporcionada es veraz y me pertenece.</label></div>
         <div class="checkbox-group"><input type="checkbox" id="fp-autorizacion" required><label for="fp-autorizacion">Autorizo a la Asociación de Industriales Gráficos del Paraguay a publicar mis datos de contacto y perfil profesional.</label></div>
-        <div class="checkbox-group"><input type="checkbox" id="fp-terminos" required><label for="fp-terminos">Acepto los <a href="#" onclick="showPage('terminos');return false;" style="color:rgba(255,255,255,0.75)">Términos de Uso</a> del portal.</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="fp-terminos" required><label for="fp-terminos">Acepto los <a href="#" onclick="showPage('terminos');return false;" style="color:var(--blue);font-weight:600;text-decoration:underline;">Términos de Uso</a> del portal.</label></div>
       </div>
       <div class="form-success" id="success-perfil">
         <div class="success-icon">✅</div>
@@ -592,7 +595,7 @@ footer strong { color:rgba(255,255,255,0.95); }
 
 <footer>
   <strong>Bolsa Laboral del Sector Gráfico</strong> — Asociación de Industriales Gráficos del Paraguay ·
-  <a href="#" onclick="showPage('terminos');return false;" style="color:rgba(255,255,255,0.75)">Términos de uso</a>
+  <a href="#" onclick="showPage('terminos');return false;" style="color:rgba(255,255,255,0.90);text-decoration:underline;">Términos de uso</a>
 </footer>
 
 <div class="toast" id="toast"></div>
