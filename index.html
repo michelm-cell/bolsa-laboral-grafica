@@ -526,7 +526,7 @@ footer strong { color:rgba(255,255,255,0.95); }
           <div class="field"><label class="field-label">Email <span class="req">*</span></label><input type="email" id="fp-email" required placeholder="tu@email.com"></div>
           <div class="field"><label class="field-label">Teléfono <span class="req">*</span></label><input type="tel" id="fp-telefono" required placeholder="+595 981 000 000"></div>
           <div class="field"><label class="field-label">Ciudad <span class="req">*</span></label><select id="fp-ciudad" required><option value="">Seleccioná ciudad</option></select></div>
-          <div class="field"><label class="field-label">Edad <span class="req">*</span></label><input type="number" id="fp-edad" required min="16" max="80" placeholder="Ej: 28"></div>
+          <div class="field"><label class="field-label">Edad <span class="req">*</span></label><input type="number" id="fp-edad" required min="18" max="80" placeholder="Ej: 28" oninput="validarEdad(this)"><div id="fp-edad-error" style="display:none;margin-top:5px;padding:8px 12px;background:#fdecea;border:1px solid #f5c6c2;border-radius:7px;font-size:12.5px;color:var(--red);font-weight:600;">🔞 Plataforma exclusiva para mayores de 18 años.</div></div>
         </div>
       </div>
       <div class="form-section">
@@ -1143,6 +1143,16 @@ async function submitVacante(e) {
   }
 }
 
+function validarEdad(input) {
+  const err = document.getElementById('fp-edad-error');
+  const val = parseInt(input.value, 10);
+  if (input.value !== '' && (!isNaN(val) && val < 18)) {
+    err.style.display = 'block';
+  } else {
+    err.style.display = 'none';
+  }
+}
+
 async function submitPerfil(e) {
   e.preventDefault();
   const btn = document.getElementById('fp-submit');
@@ -1168,6 +1178,11 @@ async function submitPerfil(e) {
     const requeridos = ['nombre','email','telefono','ciudad','categoria','cargo_objetivo'];
     const faltantes = requeridos.filter(k => !data[k] || data[k].trim() === '');
     if (faltantes.length) throw new Error('Faltan campos obligatorios: ' + faltantes.join(', '));
+    if (!data.edad || data.edad < 18) {
+      document.getElementById('fp-edad-error').style.display = 'block';
+      document.getElementById('fp-edad').focus();
+      throw new Error('Plataforma exclusiva para mayores de 18 años. Verificá la edad ingresada.');
+    }
     await db.insertPerfil(data);
     document.getElementById('success-perfil').style.display = 'block';
     document.getElementById('fp-actions').style.display = 'none';
