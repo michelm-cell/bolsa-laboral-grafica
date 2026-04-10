@@ -347,7 +347,7 @@ footer strong { color:rgba(255,255,255,0.95); }
       <div style="width:1px;height:36px;background:var(--gray-200);margin:0 4px;"></div>
       <div class="logo-text">
         <strong>Bolsa Laboral Gráfica</strong>
-        <span>Asociación de Industriales Gráficos del Paraguay</span>
+        <span>Asociación de Industriales Gráficos del 🇵🇾</span>
       </div>
     </div>
     <nav>
@@ -580,7 +580,10 @@ footer strong { color:rgba(255,255,255,0.95); }
 
 <!-- TÉRMINOS -->
 <div class="page" id="page-terminos">
-  <div class="page-header"><h2>Términos de uso</h2><p>Condiciones de uso del portal de Bolsa Laboral del Sector Gráfico</p></div>
+  <div class="page-header" style="position:relative;">
+    <h2>Términos de uso</h2><p>Condiciones de uso del portal de Bolsa Laboral del Sector Gráfico</p>
+    <button onclick="showPage(previousPage)" class="btn btn-outline" style="margin-top:14px;"><span style="font-size:15px;">←</span> Volver al formulario</button>
+  </div>
   <div class="terms-content">
     <h3>1. Declaración de veracidad</h3><p>Toda persona o empresa que registre información en este portal declara que los datos proporcionados son verdaderos, actuales y de su titularidad. La Asociación de Industriales Gráficos del Paraguay no verifica de manera independiente la veracidad de los datos publicados.</p>
     <h3>2. Autorización de publicación</h3><p>Al registrar una vacante o perfil profesional, el usuario autoriza expresamente a la Asociación de Industriales Gráficos del Paraguay a publicar los datos de contacto e información proporcionados, con el único fin de facilitar la conexión entre empresas y profesionales del sector gráfico.</p>
@@ -737,8 +740,13 @@ const CIUDADES = ['Asunción','San Lorenzo','Luque','Fernando de la Mora','Lamba
 // ═══════════════════════════════════════════════════════════════
 let currentAdminTab = 'dashboard';
 
+let previousPage = 'landing';
 function showPage(p) {
   if (p === 'admin' && !adminLoggedIn) { openLoginModal(); return; }
+  const currentActive = document.querySelector('.page.active');
+  if (currentActive && p === 'terminos') {
+    previousPage = currentActive.id.replace('page-', '');
+  }
   document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('nav button[id^=nav-]').forEach(b => b.classList.remove('active'));
   const page = document.getElementById('page-' + p);
@@ -1120,6 +1128,13 @@ async function submitVacante(e) {
     document.getElementById('success-vacante').style.display = 'block';
     document.getElementById('fv-actions').style.display = 'none';
     showToast('✅ Vacante enviada — pendiente de aprobación', 'success');
+    setTimeout(() => {
+      document.getElementById('form-vacante').reset();
+      document.getElementById('success-vacante').style.display = 'none';
+      document.getElementById('fv-actions').style.display = 'flex';
+      btn.disabled = false; btn.textContent = 'Enviar vacante →';
+      showPage('landing');
+    }, 4000);
   } catch(err) {
     btn.disabled = false; btn.textContent = 'Enviar vacante →';
     const msg = err.message || 'Error desconocido';
@@ -1157,6 +1172,13 @@ async function submitPerfil(e) {
     document.getElementById('success-perfil').style.display = 'block';
     document.getElementById('fp-actions').style.display = 'none';
     showToast('✅ Perfil enviado — pendiente de aprobación', 'success');
+    setTimeout(() => {
+      document.getElementById('form-perfil').reset();
+      document.getElementById('success-perfil').style.display = 'none';
+      document.getElementById('fp-actions').style.display = 'flex';
+      btn.disabled = false; btn.textContent = 'Enviar perfil →';
+      showPage('landing');
+    }, 4000);
   } catch(err) {
     btn.disabled = false; btn.textContent = 'Enviar perfil →';
     const msg = err.message || 'Error desconocido';
