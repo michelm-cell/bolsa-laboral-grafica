@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -187,7 +187,7 @@ main { max-width:1200px; margin:0 auto; padding:0 32px 64px; }
 .field.full { grid-column:1/-1; }
 label.field-label { font-size:13px; font-weight:600; color:var(--gray-800); }
 label.field-label .req { color:var(--gold); margin-left:2px; }
-input[type=text],input[type=email],input[type=tel],select,textarea { border:1.5px solid var(--gray-200); border-radius:8px; padding:10px 14px; font-family:'Inter',sans-serif; font-size:14px; color:var(--text); background:white; outline:none; transition:border-color .15s,box-shadow .15s; width:100%; }
+input[type=text],input[type=email],input[type=tel],input[type=number],select,textarea { border:1.5px solid var(--gray-200); border-radius:8px; padding:10px 14px; font-family:'Inter',sans-serif; font-size:14px; color:var(--text); background:white; outline:none; transition:border-color .15s,box-shadow .15s; width:100%; }
 input:focus,select:focus,textarea:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(0,50,170,0.10); }
 textarea { resize:vertical; min-height:100px; line-height:1.6; }
 .checkbox-group { display:flex; align-items:flex-start; gap:10px; padding:14px; background:var(--cream); border:1.5px solid var(--gray-200); border-radius:8px; margin-bottom:10px; }
@@ -626,6 +626,7 @@ footer strong { color:rgba(255,255,255,0.95); }
 <footer>
   <strong>Bolsa Laboral del Sector Gráfico</strong> — Asociación de Industriales Gráficos del Paraguay ·
   <a href="#" onclick="showPage('terminos');return false;" style="color:rgba(255,255,255,0.90);text-decoration:underline;">Términos de uso</a>
+  <div style="margin-top:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:0.03em;">Desarrollado por SYSI SRL · <a href="https://www.sysi.com.py" target="_blank" rel="noopener" style="color:rgba(255,255,255,0.40);text-decoration:none;">www.sysi.com.py</a></div>
 </footer>
 
 <div class="toast" id="toast"></div>
@@ -1142,7 +1143,7 @@ async function submitPerfil(e) {
     experiencia_laboral: document.getElementById('fp-experiencia').value,
     habilidades: document.getElementById('fp-habilidades').value,
     formacion: document.getElementById('fp-formacion').value,
-    edad: document.getElementById('fp-edad').value,
+    edad: parseInt(document.getElementById('fp-edad').value, 10) || null,
     estado: 'Pendiente',
     fecha_registro: new Date().toISOString().split('T')[0],
     fecha_vencimiento: new Date(Date.now() + 90*24*60*60*1000).toISOString().split('T')[0]
