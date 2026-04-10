@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -293,18 +293,47 @@ footer strong { color:rgba(255,255,255,0.95); }
 
 @media (max-width:768px) {
   header { padding:0 12px; }
-  main { padding:0 16px 48px; }
+  main { padding:0 16px 80px; }
   .stats-grid { grid-template-columns:1fr 1fr; }
   .cta-grid { grid-template-columns:1fr; }
   .items-grid { grid-template-columns:1fr; }
   .form-grid { grid-template-columns:1fr; }
   .admin-layout { grid-template-columns:1fr; }
   .admin-sidebar { display:none; }
-  nav button:not(.btn-nav-cta):not(#nav-admin) { display:none; }
-  .btn-nav-cta { font-size:11px !important; padding:6px 8px !important; margin-left:4px !important; }
-  #nav-admin { font-size:11px !important; padding:5px 7px !important; margin-left:4px !important; }
-  nav { gap:0; flex-shrink:0; }
+  nav { display:none; }
+  #mobile-nav { display:flex !important; }
 }
+#mobile-nav {
+  display:none;
+  position:fixed;
+  bottom:0; left:0; right:0;
+  background:white;
+  border-top:2px solid var(--blue);
+  box-shadow:0 -2px 12px rgba(0,0,0,0.10);
+  z-index:150;
+  padding:0;
+}
+#mobile-nav button {
+  flex:1;
+  background:none;
+  border:none;
+  font-family:'Inter',sans-serif;
+  font-size:10px;
+  font-weight:500;
+  color:var(--gray-600);
+  padding:8px 2px 6px;
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:3px;
+  transition:all .15s;
+  line-height:1.2;
+}
+#mobile-nav button .mn-icon { font-size:18px; }
+#mobile-nav button.active { color:var(--blue); font-weight:700; }
+#mobile-nav button.mn-red { color:var(--red); }
+#mobile-nav button.mn-red.active { color:var(--red); }
 </style>
 </head>
 <body>
@@ -497,6 +526,7 @@ footer strong { color:rgba(255,255,255,0.95); }
           <div class="field"><label class="field-label">Email <span class="req">*</span></label><input type="email" id="fp-email" required placeholder="tu@email.com"></div>
           <div class="field"><label class="field-label">Teléfono <span class="req">*</span></label><input type="tel" id="fp-telefono" required placeholder="+595 981 000 000"></div>
           <div class="field"><label class="field-label">Ciudad <span class="req">*</span></label><select id="fp-ciudad" required><option value="">Seleccioná ciudad</option></select></div>
+          <div class="field"><label class="field-label">Edad <span class="req">*</span></label><input type="number" id="fp-edad" required min="16" max="80" placeholder="Ej: 28"></div>
         </div>
       </div>
       <div class="form-section">
@@ -697,6 +727,7 @@ const CATEGORIAS = [
   { id:'c9', nombre:'Producción y gestión', icon:'📋', especialidades:['Jefe de producción','Planificador de trabajos','Control de stock','Presupuestista'] },
   { id:'c10', nombre:'Comercial del sector', icon:'💼', especialidades:['Vendedor de insumos gráficos','Ejecutivo de cuenta','Atención al cliente gráfico'] },
   { id:'c11', nombre:'Logística', icon:'🚚', especialidades:['Distribución de impresos','Depósito y almacenaje','Gestión de envíos'] },
+  { id:'c12', nombre:'Impresión Flexográfica', icon:'🖨', especialidades:['Operador flexográfico','Preparación de clichés','Control de tintas','Flexografía en empaques','Flexografía en etiquetas'] },
 ];
 const CIUDADES = ['Asunción','San Lorenzo','Luque','Fernando de la Mora','Lambaré','Capiatá','Ñemby','Villa Elisa','Limpio','Mariano Roque Alonso','Encarnación','Ciudad del Este','Pedro Juan Caballero','Coronel Oviedo','Concepción'];
 
@@ -713,6 +744,10 @@ function showPage(p) {
   if (page) page.classList.add('active');
   const nb = document.getElementById('nav-' + p);
   if (nb) nb.classList.add('active');
+  // Sync mobile nav
+  document.querySelectorAll('#mobile-nav button').forEach(b => b.classList.remove('active'));
+  const mnb = document.getElementById('mnav-' + p);
+  if (mnb) mnb.classList.add('active');
   window.scrollTo(0, 0);
   if (p === 'landing') renderLanding();
   if (p === 'vacantes') loadAndRenderVacantes();
@@ -1005,7 +1040,7 @@ function perCard(p) {
       <div><div class="card-title">${p.nombre}</div><div class="card-company">${p.cargo_objetivo}</div></div>
       <span class="badge badge-green">Disponible</span>
     </div>
-    <div class="card-meta"><span class="meta-item">📍 ${p.ciudad}</span></div>
+    <div class="card-meta"><span class="meta-item">📍 ${p.ciudad}</span>${p.edad ? `<span class="meta-item">🗓 ${p.edad} años</span>` : ''}</div>
     <div class="card-meta">
       <span class="badge badge-navy">${p.categoria}</span>
       ${p.especialidad ? `<span class="badge badge-gray">${p.especialidad}</span>` : ''}
@@ -1045,6 +1080,7 @@ function openPerfil(id) {
         <div class="contact-item"><span>Email</span>${p.email}</div>
         <div class="contact-item"><span>Teléfono</span>${p.telefono}</div>
         <div class="contact-item"><span>Ciudad</span>${p.ciudad}</div>
+        ${p.edad ? `<div class="contact-item"><span>Edad</span>${p.edad} años</div>` : ''}
       </div>
     </div>
   `;
@@ -1106,6 +1142,7 @@ async function submitPerfil(e) {
     experiencia_laboral: document.getElementById('fp-experiencia').value,
     habilidades: document.getElementById('fp-habilidades').value,
     formacion: document.getElementById('fp-formacion').value,
+    edad: document.getElementById('fp-edad').value,
     estado: 'Pendiente',
     fecha_registro: new Date().toISOString().split('T')[0],
     fecha_vencimiento: new Date(Date.now() + 90*24*60*60*1000).toISOString().split('T')[0]
@@ -1339,5 +1376,24 @@ document.getElementById('login-overlay').addEventListener('click', function(e) {
 populateSelects();
 renderLanding();
 </script>
+
+<!-- BARRA NAVEGACIÓN MÓVIL -->
+<div id="mobile-nav">
+  <button id="mnav-landing" class="active" onclick="showPage('landing')">
+    <span class="mn-icon">🏠</span>Inicio
+  </button>
+  <button id="mnav-vacantes" onclick="showPage('vacantes')">
+    <span class="mn-icon">📋</span>Vacantes
+  </button>
+  <button id="mnav-perfiles" onclick="showPage('perfiles')">
+    <span class="mn-icon">👥</span>Profesionales
+  </button>
+  <button id="mnav-form-vacante" class="mn-red" onclick="showPage('form-vacante')">
+    <span class="mn-icon">➕</span>Publicar
+  </button>
+  <button id="mnav-form-perfil" onclick="showPage('form-perfil')">
+    <span class="mn-icon">📝</span>Mi Perfil
+  </button>
+</div>
 </body>
 </html>
