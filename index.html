@@ -1258,9 +1258,15 @@ async function guardarNuevaClave(e) {
     // Cerramos la sesión temporal para forzar un login limpio con la clave nueva
     await cerrarSesionAuth();
     document.getElementById('reset-overlay').classList.remove('open');
-    showToast('Contraseña definida. Ya podés iniciar sesión con ella.', 'success');
-    const ctx = (_config && _config.require_login_to_view) ? 'gate' : 'admin';
-    setTimeout(() => abrirAuthModal(ctx), 400);
+    if (_config && _config.require_login_to_view) {
+      // Portal cerrado: hay que iniciar sesión para ver el contenido
+      showToast('Contraseña definida. Iniciá sesión para continuar.', 'success');
+      setTimeout(() => abrirAuthModal('gate'), 400);
+    } else {
+      // Portal abierto: no hace falta login, el contenido es público
+      showToast('¡Listo! Tu contraseña quedó definida.', 'success');
+      showPage('landing');
+    }
   } catch (err2) {
     err.textContent = err2.message || 'No se pudo cambiar la contraseña.';
     err.classList.add('show');
@@ -2070,7 +2076,12 @@ function estadoBadgePer(e) {
 }
 function formatDate(d) {
   if (!d) return '—';
-  return new Date(d + 'T12:00:00').toLocaleDateString('es-PY', { day:'2-digit', month:'short', year:'numeric' });
+  // Fecha sola (YYYY-MM-DD): fijamos mediodía para evitar corrimiento por zona horaria.
+  // Timestamp completo (con hora/zona): lo parseamos tal cual.
+  const soloFecha = typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d);
+  const fecha = soloFecha ? new Date(d + 'T12:00:00') : new Date(d);
+  if (isNaN(fecha.getTime())) return '—';
+  return fecha.toLocaleDateString('es-PY', { day:'2-digit', month:'short', year:'numeric' });
 }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function showToast(msg, type) {
