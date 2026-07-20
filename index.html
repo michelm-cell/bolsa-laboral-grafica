@@ -495,7 +495,7 @@ footer strong { color:rgba(255,255,255,0.95); }
         <div class="form-section-title">Declaraciones legales</div>
         <div class="checkbox-group"><input type="checkbox" id="fv-veracidad" required><label for="fv-veracidad">Declaro que toda la información proporcionada es veraz y corresponde a una búsqueda laboral genuina.</label></div>
         <div class="checkbox-group"><input type="checkbox" id="fv-autorizacion" required><label for="fv-autorizacion">Autorizo a la Asociación de Industriales Gráficos del Paraguay a publicar los datos de contacto indicados.</label></div>
-        <div class="checkbox-group"><input type="checkbox" id="fv-terminos" required><label for="fv-terminos">Acepto los <a href="#" onclick="showPage('terminos');return false;" style="color:var(--blue);font-weight:600;text-decoration:underline;">Términos de Uso</a> del portal.</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="fv-terminos" required><label for="fv-terminos">Acepto las <a href="#" onclick="showPage('terminos');return false;" style="color:var(--blue);font-weight:600;text-decoration:underline;">bases y condiciones</a> del portal.</label></div>
       </div>
       <div class="form-success" id="success-vacante">
         <div class="success-icon">✅</div>
@@ -544,7 +544,7 @@ footer strong { color:rgba(255,255,255,0.95); }
         <div class="form-section-title">Declaraciones legales</div>
         <div class="checkbox-group"><input type="checkbox" id="fp-veracidad" required><label for="fp-veracidad">Declaro que toda la información proporcionada es veraz y me pertenece.</label></div>
         <div class="checkbox-group"><input type="checkbox" id="fp-autorizacion" required><label for="fp-autorizacion">Autorizo a la Asociación de Industriales Gráficos del Paraguay a publicar mis datos de contacto y perfil profesional.</label></div>
-        <div class="checkbox-group"><input type="checkbox" id="fp-terminos" required><label for="fp-terminos">Acepto los <a href="#" onclick="showPage('terminos');return false;" style="color:var(--blue);font-weight:600;text-decoration:underline;">Términos de Uso</a> del portal.</label></div>
+        <div class="checkbox-group"><input type="checkbox" id="fp-terminos" required><label for="fp-terminos">Acepto las <a href="#" onclick="showPage('terminos');return false;" style="color:var(--blue);font-weight:600;text-decoration:underline;">bases y condiciones</a> del portal.</label></div>
       </div>
       <div class="form-success" id="success-perfil">
         <div class="success-icon">✅</div>
@@ -574,6 +574,7 @@ footer strong { color:rgba(255,255,255,0.95); }
       <button class="sidebar-btn" onclick="adminTab('per-disp')" id="sb-per-disp">✅ Disponibles <span class="count" id="cnt-per-disp">0</span></button>
       <button class="sidebar-btn" onclick="adminTab('per-todos')" id="sb-per-todos">📋 Todos</button>
       <h4>Configuración</h4>
+      <button class="sidebar-btn" onclick="adminTab('usuarios')" id="sb-usuarios">👥 Usuarios</button>
       <button class="sidebar-btn" onclick="adminTab('ajustes')" id="sb-ajustes">⚙️ Ajustes</button>
     </div>
     <div class="admin-content" id="admin-content"></div>
@@ -583,17 +584,13 @@ footer strong { color:rgba(255,255,255,0.95); }
 <!-- TÉRMINOS -->
 <div class="page" id="page-terminos">
   <div class="page-header" style="position:relative;">
-    <h2>Términos de uso</h2><p>Condiciones de uso del portal de Bolsa Laboral del Sector Gráfico</p>
+    <h2>Bases y condiciones</h2><p>Documento oficial del portal de Bolsa Laboral del Sector Gráfico</p>
     <button onclick="showPage(previousPage)" class="btn btn-outline" style="margin-top:14px;"><span style="font-size:15px;">←</span> Volver al formulario</button>
   </div>
   <div id="bases-descarga" style="display:none;margin-bottom:24px;"></div>
   <div class="terms-content">
-    <h3>1. Declaración de veracidad</h3><p>Toda persona o empresa que registre información en este portal declara que los datos proporcionados son verdaderos, actuales y de su titularidad. La Asociación de Industriales Gráficos del Paraguay no verifica de manera independiente la veracidad de los datos publicados.</p>
-    <h3>2. Autorización de publicación</h3><p>Al registrar una vacante o perfil profesional, el usuario autoriza expresamente a la Asociación de Industriales Gráficos del Paraguay a publicar los datos de contacto e información proporcionados, con el único fin de facilitar la conexión entre empresas y profesionales del sector gráfico.</p>
-    <h3>3. Moderación de contenidos</h3><p>Todas las publicaciones serán revisadas por el equipo de la Asociación antes de su publicación. La Asociación se reserva el derecho de rechazar o dar de baja cualquier publicación que no cumpla con los criterios del portal.</p>
-    <h3>4. Limitación de responsabilidad</h3><p>La Asociación actúa exclusivamente como intermediario informativo y no es parte en ninguna relación laboral o comercial que pudiera surgir entre empresas y profesionales a través de este portal.</p>
-    <h3>5. Vigencia de las publicaciones</h3><p>Las vacantes tendrán vigencia máxima de 30 días desde su aprobación. Los perfiles profesionales tendrán vigencia de 90 días.</p>
-    <h3>6. Protección de datos</h3><p>Los datos personales se utilizarán exclusivamente para los fines del portal. No serán cedidos a terceros ajenos al proceso de intermediación laboral.</p>
+    <p>Las bases y condiciones completas de uso de este portal se encuentran en el documento oficial de la Asociación de Industriales Gráficos del Paraguay. Descargalo desde el botón de arriba para conocer el alcance completo del servicio.</p>
+    <p id="bases-sin-pdf" style="display:none;color:var(--gray-500);font-size:13.5px;margin-top:8px;">El documento aún no está disponible para descarga. Volvé a intentarlo en unos momentos o contactá a la Asociación.</p>
   </div>
 </div>
 
@@ -621,11 +618,38 @@ footer strong { color:rgba(255,255,255,0.95); }
       </div>
       <button type="submit" class="login-btn" id="login-btn">Ingresar al panel →</button>
     </form>
+    <div id="login-forgot-wrap" style="text-align:center;margin-top:12px;font-size:13px;">
+      <a href="#" id="login-forgot" onclick="pedirRecuperacion(event)" style="color:var(--gray-600);text-decoration:underline;">¿Olvidaste tu contraseña?</a>
+    </div>
     <div class="login-toggle-wrap" id="login-toggle-wrap" style="text-align:center;margin-top:14px;font-size:13px;color:var(--gray-600);display:none;">
       <span id="login-toggle-text">¿No tenés cuenta?</span>
       <a href="#" id="login-toggle" onclick="toggleAuthMode(event)" style="color:var(--blue);font-weight:600;text-decoration:none;">Crear cuenta</a>
     </div>
     <div class="login-footer">Acceso restringido — Asociación de Industriales Gráficos del Paraguay<br>Solo personal autorizado</div>
+  </div>
+</div>
+
+<!-- Modal: definir nueva contraseña (llegada desde email de recuperación) -->
+<div class="login-overlay" id="reset-overlay">
+  <div class="login-box">
+    <div class="login-logo" style="flex-direction:column;gap:8px;">
+      <div class="login-logo-text" style="text-align:center;font-size:13px;color:var(--gray-500);">Bolsa Laboral del Sector Gráfico</div>
+    </div>
+    <h3 id="reset-title">Definí tu contraseña</h3>
+    <p id="reset-sub">Ingresá una nueva contraseña para tu cuenta.</p>
+    <div class="login-error" id="reset-error">Las contraseñas no coinciden</div>
+    <form onsubmit="guardarNuevaClave(event)">
+      <div class="login-field">
+        <label>Nueva contraseña</label>
+        <input type="password" id="reset-pass" autocomplete="new-password" placeholder="Mínimo 8 caracteres" required>
+      </div>
+      <div class="login-field">
+        <label>Repetí la contraseña</label>
+        <input type="password" id="reset-pass2" autocomplete="new-password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="login-btn" id="reset-btn">Guardar contraseña →</button>
+    </form>
+    <div class="login-footer">Por seguridad, elegí una contraseña que no uses en otros sitios.</div>
   </div>
 </div>
 
@@ -635,7 +659,7 @@ footer strong { color:rgba(255,255,255,0.95); }
 
 <footer>
   <strong>Bolsa Laboral del Sector Gráfico</strong> — Asociación de Industriales Gráficos del Paraguay ·
-  <a href="#" onclick="showPage('terminos');return false;" style="color:rgba(255,255,255,0.90);text-decoration:underline;">Términos de uso</a>
+  <a href="#" onclick="showPage('terminos');return false;" style="color:rgba(255,255,255,0.90);text-decoration:underline;">Bases y condiciones</a>
   <div style="margin-top:8px;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:0.03em;">Desarrollado por SYSI SRL · <a href="https://www.sysi.com.py" target="_blank" rel="noopener" style="color:rgba(255,255,255,0.40);text-decoration:none;">www.sysi.com.py</a></div>
 </footer>
 
@@ -752,6 +776,13 @@ const db = {
   async updateConfig(data) {
     return sbFetch('config?id=eq.1', { method: 'PATCH', body: JSON.stringify(data), prefer: 'return=minimal' });
   },
+  // ─── Gestión de usuarios (solo admin, vía RLS es_admin) ─────────
+  async getUsuarios() {
+    return sbFetch('perfiles_usuario?select=id,email,rol,creado_en&order=creado_en.desc');
+  },
+  async updateRolUsuario(id, rol) {
+    return sbFetch(`perfiles_usuario?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify({ rol }), prefer: 'return=minimal' });
+  },
   // ─── Estadísticas públicas (RPC, no expone filas ni contactos) ──
   async estadisticasPublicas() {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/estadisticas_publicas`, {
@@ -800,6 +831,61 @@ async function crearCuentaVisitante(email, password) {
     guardarSesion(data);
     _rol = await obtenerRol();
   }
+  return data;
+}
+
+// URL a la que Supabase redirige tras el email de recuperación (debe estar
+// permitida en Supabase → Authentication → URL Configuration → Redirect URLs).
+const RESET_REDIRECT = 'https://bolsagrafica.aigp.com.py/';
+
+// Envía el email de recuperación de contraseña a la dirección indicada.
+async function enviarEmailRecuperacion(email) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/recover`, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, redirect_to: RESET_REDIRECT })
+  });
+  // Nota: por privacidad, Supabase responde 200 aunque el email no exista.
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}));
+    throw new Error(e.msg || e.error_description || 'No se pudo enviar el email');
+  }
+  return true;
+}
+
+// Cambia la contraseña del usuario logueado (usa el token de la sesión actual,
+// que puede ser la sesión temporal de recuperación).
+async function cambiarPassword(nueva) {
+  if (!_session || !_session.access_token) throw new Error('Sesión no válida.');
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    method: 'PUT',
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${_session.access_token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ password: nueva })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.msg || data.error_description || 'No se pudo cambiar la contraseña');
+  return data;
+}
+
+// Invita a un usuario nuevo llamando a la Edge Function (que guarda la service_role
+// del lado del servidor y verifica que quien llama sea admin). El invitado define
+// su propia contraseña desde el email.
+async function invitarUsuarioAPI(email, rol) {
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/invitar-usuario`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${tokenActivo()}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ email, rol })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'No se pudo invitar al usuario');
   return data;
 }
 
@@ -891,9 +977,15 @@ async function cargarConfig() {
 // Pinta la caja de descarga de bases y condiciones en la página de Términos
 function pintarBasesDescarga() {
   const box = document.getElementById('bases-descarga');
+  const sinPdf = document.getElementById('bases-sin-pdf');
   if (!box) return;
   const url = _config && _config.terminos_pdf_url;
-  if (!url) { box.style.display = 'none'; box.innerHTML = ''; return; }
+  if (!url) {
+    box.style.display = 'none'; box.innerHTML = '';
+    if (sinPdf) sinPdf.style.display = 'block';
+    return;
+  }
+  if (sinPdf) sinPdf.style.display = 'none';
   box.style.display = 'block';
   box.innerHTML = `
     <div style="background:var(--blue-light);border:1px solid #cfe0ff;border-radius:12px;padding:20px 22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
@@ -1089,6 +1181,90 @@ async function doLogin(e) {
     }
   } catch (err2) {
     fallar(err2.message || 'Email o contraseña incorrectos');
+  }
+}
+
+// Pide el email y dispara el envío del enlace de recuperación.
+async function pedirRecuperacion(e) {
+  if (e) e.preventDefault();
+  const campo = document.getElementById('login-user');
+  let email = (campo && campo.value.trim()) || '';
+  email = prompt('Ingresá tu correo y te enviaremos un enlace para restablecer la contraseña:', email);
+  if (email === null) return;                 // canceló
+  email = email.trim();
+  if (!email) { showToast('Necesitás ingresar un correo', 'error'); return; }
+  try {
+    await enviarEmailRecuperacion(email);
+    document.getElementById('login-overlay').classList.remove('open');
+    showToast('Si el correo está registrado, te llegará un enlace para restablecer la contraseña.', 'success');
+  } catch (err) {
+    showToast('No se pudo enviar el email: ' + (err.message || err), 'error');
+  }
+}
+
+// Al volver desde el email (recuperación o invitación), Supabase deja el token
+// en el hash (#access_token=...&type=recovery|invite). Lo detectamos y abrimos
+// el modal para definir la contraseña.
+function detectarRecuperacion() {
+  const hash = window.location.hash || '';
+  const esRecovery = hash.indexOf('type=recovery') !== -1;
+  const esInvite   = hash.indexOf('type=invite')   !== -1;
+  if (!esRecovery && !esInvite) return false;
+  const params = new URLSearchParams(hash.replace(/^#/, ''));
+  const at = params.get('access_token');
+  const rt = params.get('refresh_token');
+  if (!at) {
+    if (hash.indexOf('error') !== -1) {
+      showToast('El enlace venció o no es válido. Pedí uno nuevo.', 'error');
+    }
+    return false;
+  }
+  // Guardamos una sesión temporal para poder definir la contraseña
+  guardarSesion({
+    access_token: at,
+    refresh_token: rt || '',
+    expires_in: parseInt(params.get('expires_in') || '3600', 10),
+    user: null
+  });
+  // Limpiamos el hash para no dejar el token expuesto en la URL
+  try { history.replaceState(null, '', window.location.pathname + window.location.search); } catch (e) {}
+  // Ajustamos el texto según sea invitación o recuperación
+  const titulo = document.getElementById('reset-title');
+  const sub    = document.getElementById('reset-sub');
+  if (esInvite) {
+    if (titulo) titulo.textContent = '¡Bienvenido/a!';
+    if (sub) sub.textContent = 'Definí tu contraseña para activar tu cuenta y acceder al portal.';
+  } else {
+    if (titulo) titulo.textContent = 'Definí tu contraseña';
+    if (sub) sub.textContent = 'Ingresá una nueva contraseña para tu cuenta.';
+  }
+  document.getElementById('reset-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('reset-pass').focus(), 100);
+  return true;
+}
+
+async function guardarNuevaClave(e) {
+  e.preventDefault();
+  const p1 = document.getElementById('reset-pass').value;
+  const p2 = document.getElementById('reset-pass2').value;
+  const btn = document.getElementById('reset-btn');
+  const err = document.getElementById('reset-error');
+  err.classList.remove('show');
+  if (p1.length < 8) { err.textContent = 'La contraseña debe tener al menos 8 caracteres.'; err.classList.add('show'); return; }
+  if (p1 !== p2)     { err.textContent = 'Las contraseñas no coinciden.'; err.classList.add('show'); return; }
+  const txt = btn.textContent; btn.disabled = true; btn.textContent = 'Guardando…';
+  try {
+    await cambiarPassword(p1);
+    // Cerramos la sesión temporal para forzar un login limpio con la clave nueva
+    await cerrarSesionAuth();
+    document.getElementById('reset-overlay').classList.remove('open');
+    showToast('Contraseña definida. Ya podés iniciar sesión con ella.', 'success');
+    const ctx = (_config && _config.require_login_to_view) ? 'gate' : 'admin';
+    setTimeout(() => abrirAuthModal(ctx), 400);
+  } catch (err2) {
+    err.textContent = err2.message || 'No se pudo cambiar la contraseña.';
+    err.classList.add('show');
+    btn.disabled = false; btn.textContent = txt;
   }
 }
 
@@ -1583,8 +1759,114 @@ async function adminTab(tab) {
     else if (tab === 'per-disp') { const per = await db.getPerfiles(); renderAdminPer(c, per, 'Disponible'); }
     else if (tab === 'per-todos'){ const per = await db.getPerfiles(); renderAdminPer(c, per, null); }
     else if (tab === 'ajustes')  { await renderAjustes(c); }
+    else if (tab === 'usuarios') { await renderUsuarios(c); }
   } catch(e) {
     c.innerHTML = dbError();
+  }
+}
+
+async function renderUsuarios(c) {
+  c.innerHTML = loading();
+  let usuarios = [];
+  try {
+    usuarios = await db.getUsuarios();
+  } catch (e) {
+    c.innerHTML = `<div class="admin-header"><h2>Usuarios</h2></div>${dbError()}`;
+    return;
+  }
+  const miId = (_session && _session.user) ? _session.user.id : null;
+  const filas = usuarios.map(u => {
+    const esYo = u.id === miId;
+    const badge = u.rol === 'admin'
+      ? '<span class="badge badge-blue" style="font-size:11px">Administrador</span>'
+      : '<span class="badge badge-navy" style="font-size:11px">Visitante</span>';
+    const accionRol = u.rol === 'admin'
+      ? (esYo ? '' : `<button class="btn btn-sm btn-outline" onclick="cambiarRolUsuario('${u.id}','visitante')">↓ Quitar admin</button>`)
+      : `<button class="btn btn-sm btn-success" onclick="cambiarRolUsuario('${u.id}','admin')">↑ Hacer admin</button>`;
+    const emailSeguro = (u.email || '').replace(/'/g, "\\'");
+    return `<tr>
+      <td><div class="td-title">${u.email || '(sin email)'}</div>${esYo ? '<div class="td-sub">Vos</div>' : ''}</td>
+      <td>${badge}</td>
+      <td style="white-space:nowrap">${u.creado_en ? formatDate(u.creado_en) : '—'}</td>
+      <td><div class="action-btns">
+        ${accionRol}
+        ${u.email ? `<button class="btn btn-sm btn-outline" onclick="enviarRecuperacionUsuario('${emailSeguro}')">✉ Enviar reset de clave</button>` : ''}
+      </div></td>
+    </tr>`;
+  }).join('');
+
+  c.innerHTML = `
+    <div class="admin-header"><h2>Usuarios</h2></div>
+    ${dbStatusBanner()}
+    <div class="table-card" style="padding:22px;margin-bottom:20px">
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;color:var(--navy);margin-bottom:6px">Invitar usuario nuevo</h3>
+      <p style="font-size:13.5px;color:var(--gray-600);line-height:1.6;margin-bottom:16px">
+        Se le envía un email de invitación. La persona hace clic, <strong>define su propia contraseña</strong> y queda activada. Vos nunca manejás su clave.
+      </p>
+      <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:220px">
+          <label style="display:block;font-size:12px;color:var(--gray-600);margin-bottom:4px">Correo</label>
+          <input type="email" id="inv-email" placeholder="persona@correo.com" style="width:100%;padding:10px 12px;border:1px solid var(--gray-200);border-radius:8px;font-size:14px">
+        </div>
+        <div style="min-width:150px">
+          <label style="display:block;font-size:12px;color:var(--gray-600);margin-bottom:4px">Rol</label>
+          <select id="inv-rol" style="width:100%;padding:10px 12px;border:1px solid var(--gray-200);border-radius:8px;font-size:14px">
+            <option value="visitante">Visitante</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+        <button class="btn btn-sm btn-success" id="inv-btn" onclick="invitarUsuario()" style="padding:11px 18px">✉ Enviar invitación</button>
+      </div>
+    </div>
+    <div style="background:#eef4ff;border:1px solid #cfe0ff;border-radius:12px;padding:14px 18px;margin-bottom:18px;font-size:13px;color:var(--gray-700);line-height:1.6">
+      Desde la tabla podés cambiar <strong>roles</strong> o reenviar un <strong>email de recuperación</strong> de contraseña.
+    </div>
+    <div class="table-card">
+      <table><thead><tr>
+        <th>Correo</th><th>Rol</th><th>Alta</th><th>Acciones</th>
+      </tr></thead><tbody>${filas || '<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">👥</div><p>No hay usuarios registrados.</p></div></td></tr>'}</tbody></table>
+    </div>`;
+}
+
+async function invitarUsuario() {
+  const emailEl = document.getElementById('inv-email');
+  const rolEl = document.getElementById('inv-rol');
+  const btn = document.getElementById('inv-btn');
+  const email = (emailEl.value || '').trim().toLowerCase();
+  const rol = rolEl.value === 'admin' ? 'admin' : 'visitante';
+  if (!email || email.indexOf('@') === -1) { showToast('Ingresá un correo válido', 'error'); return; }
+  const txt = btn.textContent; btn.disabled = true; btn.textContent = 'Enviando…';
+  try {
+    await invitarUsuarioAPI(email, rol);
+    showToast('Invitación enviada a ' + email, 'success');
+    await adminTab('usuarios');
+  } catch (e) {
+    console.error('invitarUsuario:', e);
+    showToast('No se pudo invitar: ' + (e.message || e), 'error');
+    btn.disabled = false; btn.textContent = txt;
+  }
+}
+
+async function cambiarRolUsuario(id, rol) {
+  const txt = rol === 'admin' ? 'dar acceso de administrador' : 'quitar el acceso de administrador';
+  if (!confirm('¿Confirmás ' + txt + ' a este usuario?')) return;
+  try {
+    await db.updateRolUsuario(id, rol);
+    showToast('Rol actualizado', 'success');
+    await adminTab('usuarios');
+  } catch (e) {
+    console.error('cambiarRolUsuario:', e);
+    showToast('No se pudo cambiar el rol: ' + (e.message || e), 'error');
+  }
+}
+
+async function enviarRecuperacionUsuario(email) {
+  if (!confirm('¿Enviar un email de recuperación de contraseña a ' + email + '?')) return;
+  try {
+    await enviarEmailRecuperacion(email);
+    showToast('Email de recuperación enviado a ' + email, 'success');
+  } catch (e) {
+    showToast('No se pudo enviar: ' + (e.message || e), 'error');
   }
 }
 
@@ -1812,6 +2094,8 @@ renderLanding();
 
 // Restaurar sesión previa (si el admin ya estaba logueado) y cargar configuración global
 (async function initApp() {
+  // Si venimos de un email de recuperación, mostramos el modal de nueva clave y no seguimos
+  if (detectarRecuperacion()) return;
   try {
     await restaurarSesion();
     if (tokenActivo() && _rol === 'admin') showAdminSessionBar();
