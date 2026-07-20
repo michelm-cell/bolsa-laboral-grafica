@@ -713,19 +713,27 @@ function limpiarSesion() {
 }
 
 // ─── Helper para llamadas a la API de Supabase ──────────────────
-async function sbFetch(endpoint, options = {}) {
+async function sbFetch(endpoint, options = {}, _forzarAnon = false) {
   const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
+  const token = _forzarAnon ? SUPABASE_ANON_KEY : tokenActivo();
   const res = await fetch(url, {
     ...options,
     headers: {
       'apikey': SUPABASE_ANON_KEY,
-      'Authorization': `Bearer ${tokenActivo()}`,
+      'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
       'Prefer': options.prefer || 'return=representation',
       ...(options.headers || {})
     }
   });
   if (!res.ok) {
+    // Si el token de sesión quedó inválido/vencido (401), descartamos esa sesión
+    // colgada y reintentamos una vez con la clave anónima. Así las operaciones
+    // públicas (leer, enviar formularios) nunca se rompen por una sesión vieja.
+    if (res.status === 401 && !_forzarAnon && token !== SUPABASE_ANON_KEY) {
+      limpiarSesion();
+      return sbFetch(endpoint, options, true);
+    }
     const err = await res.json().catch(() => ({}));
     throw new Error(err.message || `Error ${res.status}`);
   }
@@ -750,10 +758,12 @@ const db = {
     return sbFetch(q);
   },
   async insertVacante(data) {
-    return sbFetch('vacantes', { method: 'POST', body: JSON.stringify(data) });
+    // return=minimal: no pedimos la fila de vuelta (entra como Pendiente y la
+    // policy de lectura pública no la vería, lo que causaría un falso error RLS).
+    return sbFetch('vacantes', { method: 'POST', body: JSON.stringify(data), prefer: 'return=minimal' });
   },
   async insertPerfil(data) {
-    return sbFetch('perfiles', { method: 'POST', body: JSON.stringify(data) });
+    return sbFetch('perfiles', { method: 'POST', body: JSON.stringify(data), prefer: 'return=minimal' });
   },
   async updateVacante(id, data) {
     return sbFetch(`vacantes?id=eq.${id}`, {
