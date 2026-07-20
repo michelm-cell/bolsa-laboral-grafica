@@ -882,10 +882,26 @@ async function invitarUsuarioAPI(email, rol) {
       'Authorization': `Bearer ${tokenActivo()}`,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ email, rol })
+    body: JSON.stringify({ accion: 'invitar', email, rol })
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || 'No se pudo invitar al usuario');
+  return data;
+}
+
+// Elimina por completo la cuenta de un usuario (vía Edge Function, solo admin).
+async function eliminarUsuarioAPI(email) {
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/invitar-usuario`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${tokenActivo()}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ accion: 'eliminar', email })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'No se pudo eliminar el usuario');
   return data;
 }
 
@@ -1797,6 +1813,7 @@ async function renderUsuarios(c) {
       <td><div class="action-btns">
         ${accionRol}
         ${u.email ? `<button class="btn btn-sm btn-outline" onclick="enviarRecuperacionUsuario('${emailSeguro}')">✉ Enviar reset de clave</button>` : ''}
+        ${(u.email && !esYo) ? `<button class="btn btn-sm btn-danger" onclick="eliminarUsuario('${emailSeguro}')">🗑 Eliminar</button>` : ''}
       </div></td>
     </tr>`;
   }).join('');
@@ -1873,6 +1890,27 @@ async function enviarRecuperacionUsuario(email) {
     showToast('Email de recuperación enviado a ' + email, 'success');
   } catch (e) {
     showToast('No se pudo enviar: ' + (e.message || e), 'error');
+  }
+}
+
+async function eliminarUsuario(email) {
+  // Confirmación reforzada: hay que escribir el correo exacto para evitar borrados por error
+  const escrito = prompt(
+    'Esta acción ELIMINA la cuenta por completo y no se puede deshacer.\n\n' +
+    'Para confirmar, escribí el correo del usuario a eliminar:\n' + email
+  );
+  if (escrito === null) return; // canceló
+  if (escrito.trim().toLowerCase() !== email.toLowerCase()) {
+    showToast('El correo no coincide. No se eliminó nada.', 'error');
+    return;
+  }
+  try {
+    await eliminarUsuarioAPI(email);
+    showToast('Usuario eliminado: ' + email, 'success');
+    await adminTab('usuarios');
+  } catch (e) {
+    console.error('eliminarUsuario:', e);
+    showToast('No se pudo eliminar: ' + (e.message || e), 'error');
   }
 }
 
