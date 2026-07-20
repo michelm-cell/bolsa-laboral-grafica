@@ -765,6 +765,12 @@ const db = {
       method: 'PATCH', body: JSON.stringify(data), prefer: 'return=minimal'
     });
   },
+  async deleteVacante(id) {
+    return sbFetch(`vacantes?id=eq.${id}`, { method: 'DELETE', prefer: 'return=minimal' });
+  },
+  async deletePerfil(id) {
+    return sbFetch(`perfiles?id=eq.${id}`, { method: 'DELETE', prefer: 'return=minimal' });
+  },
   async testConnection() {
     return sbFetch('vacantes?limit=1&select=id');
   },
@@ -1042,6 +1048,8 @@ const CIUDADES = ['Asunción','San Lorenzo','Luque','Fernando de la Mora','Lamba
 // NAVEGACIÓN
 // ═══════════════════════════════════════════════════════════════
 let currentAdminTab = 'dashboard';
+let _filtroVacTodas = 'Todos';   // filtro de estado en la pestaña "Todas" (vacantes)
+let _filtroPerTodos = 'Todos';   // filtro de estado en la pestaña "Todos" (perfiles)
 
 let previousPage = 'landing';
 function showPage(p) {
@@ -1989,27 +1997,57 @@ async function toggleGateAcceso(valor) {
   }
 }
 
+function selectorEstado(id, opciones, valorActual, onchange) {
+  const opts = ['Todos', ...opciones].map(o =>
+    `<option value="${o}" ${o===valorActual?'selected':''}>${o==='Todos'?'Todos los estados':o}</option>`
+  ).join('');
+  return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+    <label style="font-size:13px;color:var(--gray-600)">Filtrar por estado:</label>
+    <select id="${id}" onchange="${onchange}(this.value)" style="padding:8px 12px;border:1px solid var(--gray-200);border-radius:8px;font-size:13.5px">${opts}</select>
+  </div>`;
+}
+
 function renderAdminVac(c, vac, estadoFilter) {
-  const items = estadoFilter ? vac.filter(v => v.estado === estadoFilter) : vac;
-  const title = estadoFilter ? `Vacantes — ${estadoFilter}` : 'Todas las vacantes';
+  let items, title, filtroUI = '';
+  if (estadoFilter) {
+    items = vac.filter(v => v.estado === estadoFilter);
+    title = `Vacantes — ${estadoFilter}`;
+  } else {
+    title = 'Todas las vacantes';
+    filtroUI = selectorEstado('filtro-vac', ['Pendiente','Publicada','Concretada','Cancelada','Vencida'], _filtroVacTodas, 'aplicarFiltroVac');
+    items = (_filtroVacTodas === 'Todos') ? vac : vac.filter(v => v.estado === _filtroVacTodas);
+  }
   c.innerHTML = `
     <div class="admin-header"><h2>${title}</h2>
       ${estadoFilter==='Pendiente' ? '<span class="badge badge-orange">Requieren revisión</span>' : ''}
     </div>
     ${dbStatusBanner()}
+    ${filtroUI}
     <div class="table-card">${vacTable(items)}</div>`;
 }
 
+function aplicarFiltroVac(valor) { _filtroVacTodas = valor; adminTab('vac-todas'); }
+
 function renderAdminPer(c, per, estadoFilter) {
-  const items = estadoFilter ? per.filter(p => p.estado === estadoFilter) : per;
-  const title = estadoFilter ? `Perfiles — ${estadoFilter}` : 'Todos los perfiles';
+  let items, title, filtroUI = '';
+  if (estadoFilter) {
+    items = per.filter(p => p.estado === estadoFilter);
+    title = `Perfiles — ${estadoFilter}`;
+  } else {
+    title = 'Todos los perfiles';
+    filtroUI = selectorEstado('filtro-per', ['Pendiente','Disponible','Contratado','No disponible'], _filtroPerTodos, 'aplicarFiltroPer');
+    items = (_filtroPerTodos === 'Todos') ? per : per.filter(p => p.estado === _filtroPerTodos);
+  }
   c.innerHTML = `
     <div class="admin-header"><h2>${title}</h2>
       ${estadoFilter==='Pendiente' ? '<span class="badge badge-orange">Requieren revisión</span>' : ''}
     </div>
     ${dbStatusBanner()}
+    ${filtroUI}
     <div class="table-card">${perTable(items)}</div>`;
 }
+
+function aplicarFiltroPer(valor) { _filtroPerTodos = valor; adminTab('per-todos'); }
 
 function vacTable(items) {
   if (!items.length) return '<div class="empty-state"><div class="empty-icon">📋</div><p>No hay registros.</p></div>';
@@ -2027,7 +2065,9 @@ function vacTable(items) {
       ${v.estado==='Publicada' && !v.trato_cerrado ? `<button class="btn btn-sm btn-outline" title="Cuenta como trato cerrado en el informe pero la vacante sigue publicada" onclick="marcarTratoCerrado('${v.id}',true)">🤝 Marcar trato cerrado</button>` : ''}
       ${v.estado==='Publicada' && v.trato_cerrado ? `<span class="badge badge-blue" style="font-size:11px" title="Trato cerrado — sigue publicada">🤝 Trato cerrado</span><button class="btn btn-sm btn-outline" title="Quitar la marca de trato cerrado" onclick="marcarTratoCerrado('${v.id}',false)">↺ Reabrir</button>` : ''}
       ${v.estado==='Publicada' ? `<button class="btn btn-sm btn-success" title="Concretar y ocultar la vacante del portal" onclick="cambiarEstadoVac('${v.id}','Concretada')">✓ Concretar</button>` : ''}
-      ${['Pendiente','Publicada'].includes(v.estado) ? `<button class="btn btn-sm btn-danger" onclick="cambiarEstadoVac('${v.id}','Cancelada')">✕</button>` : ''}
+      ${['Pendiente','Publicada'].includes(v.estado) ? `<button class="btn btn-sm btn-danger" title="Marcar como cancelada" onclick="cambiarEstadoVac('${v.id}','Cancelada')">✕</button>` : ''}
+      ${['Cancelada','Vencida','Concretada'].includes(v.estado) ? `<button class="btn btn-sm btn-outline" title="Volver a publicar esta vacante" onclick="reactivarVac('${v.id}')">↺ Reactivar</button>` : ''}
+      <button class="btn btn-sm btn-danger" title="Eliminar definitivamente" onclick="eliminarVacante('${v.id}','${(v.puesto||'').replace(/'/g,"\\'")}')">🗑</button>
     </div></td>
   </tr>`).join('')}
   </tbody></table>`;
@@ -2047,7 +2087,9 @@ function perTable(items) {
     <td><div class="action-btns">
       ${p.estado==='Pendiente' ? `<button class="btn btn-sm btn-success" onclick="cambiarEstadoPer('${p.id}','Disponible')">✓ Aprobar</button>` : ''}
       ${p.estado==='Disponible' ? `<button class="btn btn-sm btn-success" onclick="cambiarEstadoPer('${p.id}','Contratado')">🤝</button>` : ''}
-      ${['Pendiente','Disponible'].includes(p.estado) ? `<button class="btn btn-sm btn-danger" onclick="cambiarEstadoPer('${p.id}','No disponible')">✕</button>` : ''}
+      ${['Pendiente','Disponible'].includes(p.estado) ? `<button class="btn btn-sm btn-danger" title="Marcar como no disponible" onclick="cambiarEstadoPer('${p.id}','No disponible')">✕</button>` : ''}
+      ${['No disponible','Contratado'].includes(p.estado) ? `<button class="btn btn-sm btn-outline" title="Volver a poner disponible este perfil" onclick="reactivarPer('${p.id}')">↺ Reactivar</button>` : ''}
+      <button class="btn btn-sm btn-danger" title="Eliminar definitivamente" onclick="eliminarPerfil('${p.id}','${(p.nombre||'').replace(/'/g,"\\'")}')">🗑</button>
     </div></td>
   </tr>`).join('')}
   </tbody></table>`;
@@ -2092,9 +2134,47 @@ async function cambiarEstadoPer(id, estado) {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// UTILIDADES
-// ═══════════════════════════════════════════════════════════════
+// Reactivar: devuelve una vacante/perfil a su estado activo
+async function reactivarVac(id) {
+  try {
+    await db.updateVacante(id, { estado: 'Publicada', trato_cerrado: false });
+    showToast('Vacante reactivada (Publicada)', 'success');
+    await adminTab(currentAdminTab);
+    updateAdminCounts();
+  } catch(e) {
+    console.error('reactivarVac:', e);
+    showToast('No se pudo reactivar: ' + (e.message || e), 'error');
+  }
+}
+async function reactivarPer(id) {
+  await cambiarEstadoPer(id, 'Disponible');
+}
+
+// Eliminar definitivamente (con confirmación). Borra la fila de la base.
+async function eliminarVacante(id, nombre) {
+  if (!confirm('¿Eliminar definitivamente esta vacante?\n\n"' + (nombre||'') + '"\n\nEsta acción no se puede deshacer.')) return;
+  try {
+    await db.deleteVacante(id);
+    showToast('Vacante eliminada', 'success');
+    await adminTab(currentAdminTab);
+    updateAdminCounts();
+  } catch(e) {
+    console.error('eliminarVacante:', e);
+    showToast('No se pudo eliminar: ' + (e.message || e), 'error');
+  }
+}
+async function eliminarPerfil(id, nombre) {
+  if (!confirm('¿Eliminar definitivamente este perfil?\n\n"' + (nombre||'') + '"\n\nEsta acción no se puede deshacer.')) return;
+  try {
+    await db.deletePerfil(id);
+    showToast('Perfil eliminado', 'success');
+    await adminTab(currentAdminTab);
+    updateAdminCounts();
+  } catch(e) {
+    console.error('eliminarPerfil:', e);
+    showToast('No se pudo eliminar: ' + (e.message || e), 'error');
+  }
+}
 function loading() {
   return `<div class="loading-state"><div class="spinner"></div><p>Cargando datos…</p></div>`;
 }
