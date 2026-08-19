@@ -205,6 +205,11 @@ textarea { resize:vertical; min-height:100px; line-height:1.6; }
 .modal { background:white; border-radius:var(--radius-lg); padding:36px; max-width:640px; width:100%; max-height:85vh; overflow-y:auto; position:relative; box-shadow:var(--shadow-lg); }
 .modal-close { position:absolute; top:16px; right:16px; background:var(--gray-100); border:none; border-radius:50%; width:32px; height:32px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; color:var(--gray-600); }
 .modal-close:hover { background:var(--gray-200); }
+.modal-promo { padding:0; max-width:520px; overflow:hidden; }
+.modal-promo img { display:block; width:100%; height:auto; border-radius:var(--radius-lg); }
+.modal-promo .modal-close { top:12px; right:12px; background:rgba(0,0,0,0.55); color:#fff; }
+.modal-promo .modal-close:hover { background:rgba(0,0,0,0.75); }
+.promo-preview { max-width:260px; max-height:160px; border-radius:8px; border:1px solid var(--gray-200); display:block; margin-top:12px; object-fit:cover; }
 .modal h3 { font-family:'Plus Jakarta Sans',sans-serif; font-size:22px; color:var(--navy); margin-bottom:6px; }
 .modal-company { font-size:14px; color:var(--gray-600); margin-bottom:20px; }
 .modal-section { margin-bottom:20px; }
@@ -656,6 +661,7 @@ footer strong { color:rgba(255,255,255,0.95); }
 <!-- Modales -->
 <div class="modal-overlay" id="modal-vacante"><div class="modal"><button class="modal-close" onclick="closeModal('modal-vacante')">✕</button><div id="modal-vacante-content"></div></div></div>
 <div class="modal-overlay" id="modal-perfil"><div class="modal"><button class="modal-close" onclick="closeModal('modal-perfil')">✕</button><div id="modal-perfil-content"></div></div></div>
+<div class="modal-overlay" id="modal-promo"><div class="modal modal-promo"><button class="modal-close" onclick="closeModal('modal-promo')">✕</button><div id="modal-promo-content"></div></div></div>
 
 <footer>
   <strong>Bolsa Laboral del Sector Gráfico</strong> — Asociación de Industriales Gráficos del Paraguay ·
@@ -683,7 +689,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const SESSION_KEY = 'bg_session';      // dónde guardamos la sesión en sessionStorage
 let _session = null;                   // { access_token, refresh_token, expires_at, user }
 let _rol = null;                       // 'admin' | 'visitante' | null
-let _config = { require_login_to_view: false, terminos_pdf_url: null, terminos_actualizado: null };
+let _config = { require_login_to_view: false, terminos_pdf_url: null, terminos_actualizado: null, promo_activa: false, promo_imagen_url: null, promo_actualizado: null };
 
 // adminLoggedIn se calcula a partir de la sesión + rol (compatibilidad con el resto del código)
 Object.defineProperty(window, 'adminLoggedIn', { get: () => !!(_session && _rol === 'admin') });
@@ -995,6 +1001,46 @@ async function subirTerminosPDF(file) {
   _config.terminos_pdf_url = publicUrl;
   _config.terminos_actualizado = new Date().toISOString();
   return publicUrl;
+}
+
+// Sube (o reemplaza) la imagen de la ventana emergente de promoción al Storage y guarda su URL.
+async function subirImagenPromo(file) {
+  if (!adminLoggedIn) throw new Error('Necesitás sesión de administrador.');
+  const ext = (file.name && file.name.includes('.')) ? file.name.split('.').pop().toLowerCase() : 'jpg';
+  const path = `promo-emergente.${ext}`;
+  const res = await fetch(`${SUPABASE_URL}/storage/v1/object/documentos/${path}`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${_session.access_token}`,
+      'x-upsert': 'true',
+      'Content-Type': file.type || 'image/jpeg'
+    },
+    body: file
+  });
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}));
+    throw new Error(e.message || 'No se pudo subir la imagen al Storage.');
+  }
+  const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/documentos/${path}?v=${Date.now()}`;
+  await db.updateConfig({ promo_imagen_url: publicUrl, promo_actualizado: new Date().toISOString() });
+  _config.promo_imagen_url = publicUrl;
+  _config.promo_actualizado = new Date().toISOString();
+  return publicUrl;
+}
+
+// Muestra la ventana emergente de promoción al ingresar, si está activada y hay imagen cargada.
+// Se muestra una sola vez por sesión de navegador (sessionStorage) para no ser invasiva en cada recarga.
+function mostrarPromoSiCorresponde() {
+  if (!_config || !_config.promo_activa || !_config.promo_imagen_url) return;
+  let yaVista = false;
+  try { yaVista = sessionStorage.getItem('bg_promo_vista') === _config.promo_imagen_url; } catch (e) {}
+  if (yaVista) return;
+  const content = document.getElementById('modal-promo-content');
+  if (!content) return;
+  content.innerHTML = `<img src="${_config.promo_imagen_url}" alt="Promoción">`;
+  document.getElementById('modal-promo').classList.add('open');
+  try { sessionStorage.setItem('bg_promo_vista', _config.promo_imagen_url); } catch (e) {}
 }
 
 // Carga la configuración global (flag de login + URL del PDF).
@@ -1939,6 +1985,9 @@ async function renderAjustes(c) {
   const pdfUrl = cfg.terminos_pdf_url || null;
   const pdfFecha = cfg.terminos_actualizado ? formatDate(cfg.terminos_actualizado) : null;
   const gateOn = !!cfg.require_login_to_view;
+  const promoOn = !!cfg.promo_activa;
+  const promoUrl = cfg.promo_imagen_url || null;
+  const promoFecha = cfg.promo_actualizado ? formatDate(cfg.promo_actualizado) : null;
   c.innerHTML = `
     <div class="admin-header"><h2>Ajustes del portal</h2></div>
     ${dbStatusBanner()}
@@ -1971,6 +2020,25 @@ async function renderAjustes(c) {
       <div id="ajustes-gate-estado" style="font-size:12.5px;color:var(--gray-500);margin-top:10px">
         Estado actual: <strong>${gateOn ? 'Acceso restringido (requiere login)' : 'Acceso libre'}</strong>
       </div>
+    </div>
+
+    <div class="table-card" style="padding:24px;margin-top:20px">
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;color:var(--navy);margin-bottom:6px">Ventana emergente de promoción</h3>
+      <p style="font-size:13.5px;color:var(--gray-600);line-height:1.6;margin-bottom:16px">
+        Mostrá una imagen promocional en una ventana flotante al ingresar al portal. Se muestra una vez por visita.
+      </p>
+      <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:14px;color:var(--navy);margin-bottom:16px">
+        <input type="checkbox" id="ajustes-promo-activa" ${promoOn ? 'checked' : ''} onchange="togglePromoActiva(this.checked)" style="width:18px;height:18px">
+        Activar ventana emergente de promoción
+      </label>
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <input type="file" id="ajustes-promo-file" accept="image/*" style="font-size:13px">
+        <button class="btn btn-sm btn-success" id="ajustes-promo-btn" onclick="subirImagenPromoUI()">⬆ Subir / cambiar imagen</button>
+      </div>
+      <div id="ajustes-promo-estado" style="font-size:12.5px;color:var(--gray-500);margin-top:10px">
+        ${promoUrl ? `Imagen cargada${promoFecha ? ' · actualizada el ' + promoFecha : ''}.` : 'Todavía no se subió ninguna imagen.'}
+      </div>
+      ${promoUrl ? `<img src="${promoUrl}" class="promo-preview" alt="Vista previa de la promoción">` : ''}
     </div>`;
 }
 
@@ -2002,6 +2070,39 @@ async function toggleGateAcceso(valor) {
     showToast(valor ? 'Acceso restringido activado' : 'Acceso libre activado', 'success');
   } catch(e) {
     console.error('toggleGateAcceso:', e);
+    showToast('No se pudo cambiar el ajuste: ' + (e.message || e), 'error');
+    await adminTab('ajustes');
+  }
+}
+
+async function subirImagenPromoUI() {
+  const input = document.getElementById('ajustes-promo-file');
+  const btn = document.getElementById('ajustes-promo-btn');
+  const file = input && input.files && input.files[0];
+  if (!file) { showToast('Elegí primero una imagen', 'error'); return; }
+  if (!file.type.startsWith('image/')) { showToast('El archivo debe ser una imagen', 'error'); return; }
+  btn.disabled = true; const txt = btn.textContent; btn.textContent = 'Subiendo…';
+  try {
+    await subirImagenPromo(file);
+    showToast('Imagen de la promoción actualizada', 'success');
+    try { sessionStorage.removeItem('bg_promo_vista'); } catch (e) {}
+    await adminTab('ajustes');
+  } catch (e) {
+    console.error('subirImagenPromoUI:', e);
+    showToast('No se pudo subir la imagen: ' + (e.message || e), 'error');
+    btn.disabled = false; btn.textContent = txt;
+  }
+}
+
+async function togglePromoActiva(valor) {
+  const estado = document.getElementById('ajustes-promo-estado');
+  try {
+    await db.updateConfig({ promo_activa: valor });
+    _config.promo_activa = valor;
+    if (valor) { try { sessionStorage.removeItem('bg_promo_vista'); } catch (e) {} }
+    showToast(valor ? 'Ventana emergente activada' : 'Ventana emergente desactivada', 'success');
+  } catch (e) {
+    console.error('togglePromoActiva:', e);
     showToast('No se pudo cambiar el ajuste: ' + (e.message || e), 'error');
     await adminTab('ajustes');
   }
@@ -2240,6 +2341,7 @@ renderLanding();
     if (tokenActivo() && _rol === 'admin') showAdminSessionBar();
   } catch (e) { /* sin sesión previa */ }
   try { await cargarConfig(); } catch (e) { /* config con defaults */ }
+  try { mostrarPromoSiCorresponde(); } catch (e) { /* no romper el ingreso por esto */ }
 })();
 </script>
 
