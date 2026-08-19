@@ -205,10 +205,10 @@ textarea { resize:vertical; min-height:100px; line-height:1.6; }
 .modal { background:white; border-radius:var(--radius-lg); padding:36px; max-width:640px; width:100%; max-height:85vh; overflow-y:auto; position:relative; box-shadow:var(--shadow-lg); }
 .modal-close { position:absolute; top:16px; right:16px; background:var(--gray-100); border:none; border-radius:50%; width:32px; height:32px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; color:var(--gray-600); }
 .modal-close:hover { background:var(--gray-200); }
-.modal-promo { padding:0; max-width:520px; overflow:hidden; }
-.modal-promo img { display:block; width:100%; height:auto; border-radius:var(--radius-lg); }
-.modal-promo .modal-close { top:12px; right:12px; background:rgba(0,0,0,0.55); color:#fff; }
-.modal-promo .modal-close:hover { background:rgba(0,0,0,0.75); }
+.modal-promo { padding:0; max-width:650px; overflow:hidden; }
+.modal-promo-bar { display:flex; justify-content:flex-end; padding:8px 8px 0; }
+.modal-promo img { display:block; width:100%; height:auto; border-radius:0 0 var(--radius-lg) var(--radius-lg); }
+.modal-promo .modal-close { position:static; }
 .promo-preview { max-width:260px; max-height:160px; border-radius:8px; border:1px solid var(--gray-200); display:block; margin-top:12px; object-fit:cover; }
 .modal h3 { font-family:'Plus Jakarta Sans',sans-serif; font-size:22px; color:var(--navy); margin-bottom:6px; }
 .modal-company { font-size:14px; color:var(--gray-600); margin-bottom:20px; }
@@ -661,7 +661,7 @@ footer strong { color:rgba(255,255,255,0.95); }
 <!-- Modales -->
 <div class="modal-overlay" id="modal-vacante"><div class="modal"><button class="modal-close" onclick="closeModal('modal-vacante')">✕</button><div id="modal-vacante-content"></div></div></div>
 <div class="modal-overlay" id="modal-perfil"><div class="modal"><button class="modal-close" onclick="closeModal('modal-perfil')">✕</button><div id="modal-perfil-content"></div></div></div>
-<div class="modal-overlay" id="modal-promo"><div class="modal modal-promo"><button class="modal-close" onclick="closeModal('modal-promo')">✕</button><div id="modal-promo-content"></div></div></div>
+<div class="modal-overlay" id="modal-promo"><div class="modal modal-promo"><div class="modal-promo-bar"><button class="modal-close" onclick="closeModal('modal-promo')">✕</button></div><div id="modal-promo-content"></div></div></div>
 
 <footer>
   <strong>Bolsa Laboral del Sector Gráfico</strong> — Asociación de Industriales Gráficos del Paraguay ·
