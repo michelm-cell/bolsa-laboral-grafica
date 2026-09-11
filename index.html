@@ -411,7 +411,7 @@ footer strong { color:rgba(255,255,255,0.95); }
   <div class="filters-bar">
     <div class="filter-group">
       <label>Buscar</label>
-      <input type="text" id="vac-search" placeholder="Puesto, empresa…" oninput="renderVacantes()">
+      <input type="text" id="vac-search" placeholder="Puesto, empresa, especialidad…" oninput="renderVacantes()">
     </div>
     <div class="filter-group">
       <label>Categoría</label>
@@ -492,7 +492,8 @@ footer strong { color:rgba(255,255,255,0.95); }
         <div class="form-grid">
           <div class="field full"><label class="field-label">Puesto / cargo buscado <span class="req">*</span></label><input type="text" id="fv-puesto" required placeholder="Ej: Operador de impresión offset"></div>
           <div class="field"><label class="field-label">Categoría profesional <span class="req">*</span></label><select id="fv-categoria" required onchange="updateFormEsp('fv-categoria','fv-especialidad')"><option value="">Seleccioná categoría</option></select></div>
-          <div class="field"><label class="field-label">Especialidad</label><select id="fv-especialidad"><option value="">Seleccioná especialidad</option></select></div>
+          <div class="field"><label class="field-label">Especialidad</label><select id="fv-especialidad" onchange="toggleEspecialidadOtro('fv-especialidad','fv-especialidad-otro-wrap','fv-especialidad-otro')"><option value="">Seleccioná especialidad</option></select></div>
+          <div class="field" id="fv-especialidad-otro-wrap" style="display:none"><label class="field-label">Especificá la especialidad <span class="req">*</span></label><input type="text" id="fv-especialidad-otro" placeholder="Escribí la especialidad"></div>
           <div class="field"><label class="field-label">Experiencia mínima <span class="req">*</span></label><select id="fv-experiencia" required><option value="">Seleccioná</option><option>Sin experiencia previa</option><option>1 año</option><option>2 años</option><option>3 a 5 años</option><option>Más de 5 años</option></select></div>
           <div class="field"><label class="field-label">Tipo de contrato <span class="req">*</span></label><select id="fv-contrato" required><option value="">Seleccioná</option><option>Tiempo completo</option><option>Tiempo parcial</option><option>Por proyecto</option><option>Pasantía</option></select></div>
           <div class="field full"><label class="field-label">Descripción del puesto <span class="req">*</span></label><textarea id="fv-descripcion" required rows="4" placeholder="Describí las tareas y responsabilidades…"></textarea></div>
@@ -541,7 +542,8 @@ footer strong { color:rgba(255,255,255,0.95); }
         <div class="form-section-title">Perfil profesional</div>
         <div class="form-grid">
           <div class="field"><label class="field-label">Categoría profesional <span class="req">*</span></label><select id="fp-categoria" required onchange="updateFormEsp('fp-categoria','fp-especialidad')"><option value="">Seleccioná categoría</option></select></div>
-          <div class="field"><label class="field-label">Especialidad</label><select id="fp-especialidad"><option value="">Seleccioná especialidad</option></select></div>
+          <div class="field"><label class="field-label">Especialidad</label><select id="fp-especialidad" onchange="toggleEspecialidadOtro('fp-especialidad','fp-especialidad-otro-wrap','fp-especialidad-otro')"><option value="">Seleccioná especialidad</option></select></div>
+          <div class="field" id="fp-especialidad-otro-wrap" style="display:none"><label class="field-label">Especificá la especialidad <span class="req">*</span></label><input type="text" id="fp-especialidad-otro" placeholder="Escribí la especialidad"></div>
           <div class="field full"><label class="field-label">Cargo objetivo <span class="req">*</span></label><input type="text" id="fp-cargo" required placeholder="Ej: Operador de gran formato"></div>
           <div class="field full"><label class="field-label">Experiencia laboral <span class="req">*</span></label><textarea id="fp-experiencia" required rows="4" placeholder="Describí tu trayectoria profesional…"></textarea></div>
           <div class="field full"><label class="field-label">Habilidades</label><textarea id="fp-habilidades" rows="3" placeholder="Manejo de equipos, software, técnicas específicas…"></textarea></div>
@@ -1452,6 +1454,27 @@ function updateFormEsp(catId, espId) {
   const sel = document.getElementById(espId);
   sel.innerHTML = '<option value="">Seleccioná especialidad</option>';
   getCatEsp(val).forEach(e => sel.appendChild(new Option(e, e)));
+  sel.appendChild(new Option('Otro (especificar)', 'Otro'));
+  // Al cambiar de categoría se resetea el select, así que ocultamos/limpiamos el campo "otro" si estaba abierto
+  toggleEspecialidadOtro(espId, espId + '-otro-wrap', espId + '-otro');
+}
+// Muestra/oculta y marca como obligatorio el campo de texto libre cuando se elige "Otro" en un select de especialidad.
+function toggleEspecialidadOtro(selectId, wrapId, inputId) {
+  const sel = document.getElementById(selectId);
+  const wrap = document.getElementById(wrapId);
+  const input = document.getElementById(inputId);
+  if (!sel || !wrap || !input) return;
+  const esOtro = sel.value === 'Otro';
+  wrap.style.display = esOtro ? '' : 'none';
+  input.required = esOtro;
+  if (!esOtro) input.value = '';
+}
+// Devuelve el valor final de especialidad a guardar: el texto libre si se eligió "Otro", o el valor del select.
+function valorEspecialidad(selectId, inputId) {
+  const sel = document.getElementById(selectId);
+  const input = document.getElementById(inputId);
+  if (sel && sel.value === 'Otro') return input ? input.value.trim() : '';
+  return sel ? sel.value : '';
 }
 function updateEspVac() {
   const val = document.getElementById('vac-cat').value;
@@ -1541,7 +1564,8 @@ function renderVacantes() {
   if (search) items = items.filter(v =>
     (v.puesto||'').toLowerCase().includes(search) ||
     (v.empresa||'').toLowerCase().includes(search) ||
-    (v.descripcion||'').toLowerCase().includes(search)
+    (v.descripcion||'').toLowerCase().includes(search) ||
+    (v.especialidad||'').toLowerCase().includes(search)
   );
   if (cat) items = items.filter(v => v.categoria === cat);
   if (esp) items = items.filter(v => v.especialidad === esp);
@@ -1725,7 +1749,7 @@ async function submitVacante(e) {
     ciudad: document.getElementById('fv-ciudad').value,
     puesto: document.getElementById('fv-puesto').value,
     categoria: document.getElementById('fv-categoria').value,
-    especialidad: document.getElementById('fv-especialidad').value,
+    especialidad: valorEspecialidad('fv-especialidad', 'fv-especialidad-otro'),
     experiencia_minima: document.getElementById('fv-experiencia').value,
     tipo_contrato: document.getElementById('fv-contrato').value,
     descripcion: document.getElementById('fv-descripcion').value,
@@ -1738,12 +1762,16 @@ async function submitVacante(e) {
     const requeridos = ['empresa','email','telefono','ciudad','puesto','categoria'];
     const faltantes = requeridos.filter(k => !data[k] || data[k].trim() === '');
     if (faltantes.length) throw new Error('Faltan campos obligatorios: ' + faltantes.join(', '));
+    if (document.getElementById('fv-especialidad').value === 'Otro' && !data.especialidad) {
+      throw new Error('Especificá la especialidad');
+    }
     await db.insertVacante(data);
     document.getElementById('success-vacante').style.display = 'block';
     document.getElementById('fv-actions').style.display = 'none';
     showToast('✅ Vacante enviada — pendiente de aprobación', 'success');
     setTimeout(() => {
       document.getElementById('form-vacante').reset();
+      toggleEspecialidadOtro('fv-especialidad','fv-especialidad-otro-wrap','fv-especialidad-otro');
       document.getElementById('success-vacante').style.display = 'none';
       document.getElementById('fv-actions').style.display = 'flex';
       btn.disabled = false; btn.textContent = 'Enviar vacante →';
@@ -1777,7 +1805,7 @@ async function submitPerfil(e) {
     telefono: document.getElementById('fp-telefono').value,
     ciudad: document.getElementById('fp-ciudad').value,
     categoria: document.getElementById('fp-categoria').value,
-    especialidad: document.getElementById('fp-especialidad').value,
+    especialidad: valorEspecialidad('fp-especialidad', 'fp-especialidad-otro'),
     cargo_objetivo: document.getElementById('fp-cargo').value,
     experiencia_laboral: document.getElementById('fp-experiencia').value,
     habilidades: document.getElementById('fp-habilidades').value,
@@ -1792,6 +1820,9 @@ async function submitPerfil(e) {
     const requeridos = ['nombre','email','telefono','ciudad','categoria','cargo_objetivo'];
     const faltantes = requeridos.filter(k => !data[k] || data[k].trim() === '');
     if (faltantes.length) throw new Error('Faltan campos obligatorios: ' + faltantes.join(', '));
+    if (document.getElementById('fp-especialidad').value === 'Otro' && !data.especialidad) {
+      throw new Error('Especificá la especialidad');
+    }
     if (!data.edad || data.edad < 18) {
       document.getElementById('fp-edad-error').style.display = 'block';
       document.getElementById('fp-edad').focus();
@@ -1803,6 +1834,7 @@ async function submitPerfil(e) {
     showToast('✅ Perfil enviado — pendiente de aprobación', 'success');
     setTimeout(() => {
       document.getElementById('form-perfil').reset();
+      toggleEspecialidadOtro('fp-especialidad','fp-especialidad-otro-wrap','fp-especialidad-otro');
       document.getElementById('success-perfil').style.display = 'none';
       document.getElementById('fp-actions').style.display = 'flex';
       btn.disabled = false; btn.textContent = 'Enviar perfil →';
